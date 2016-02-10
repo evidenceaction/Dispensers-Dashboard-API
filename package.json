@@ -1,0 +1,22 @@
+{
+  "name": "safe-water",
+  "version": "0.1.0",
+  "description": "Safe Water dashboards",
+  "main": "app/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-dev": "OC_ENV=development ./node_modules/nodemon/bin/nodemon.js app/index.js",
+    "postinstall": "[ -f app/config/local.js ] || echo 'module.exports = {};' > app/config/local.js"
+  },
+  "author": "Development Seed <dev@developmentseed.org> (https://developmentseed.org)",
+  "license": "MIT",
+  "dependencies": {
+    "good": "^6.4.0",
+    "good-console": "^5.3.0",
+    "hapi": "^13.0.0",
+    "lodash": "^4.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.8.1"
+  }
+}
