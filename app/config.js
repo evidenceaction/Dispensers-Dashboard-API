@@ -21,4 +21,6 @@ config.debug = process.env.OC_DEBUG || config.debug;
 config.connection.port = process.env.PORT || config.connection.port;
 config.connection.host = process.env.HOST || config.connection.host;
 
+config.baseDir = __dirname;
+
 module.exports = config;

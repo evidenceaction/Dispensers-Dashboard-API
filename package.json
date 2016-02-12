@@ -11,10 +11,13 @@
   "author": "Development Seed <dev@developmentseed.org> (https://developmentseed.org)",
   "license": "MIT",
   "dependencies": {
+    "boom": "^3.1.2",
     "good": "^6.4.0",
     "good-console": "^5.3.0",
     "hapi": "^13.0.0",
-    "lodash": "^4.2.0"
+    "js-yaml": "^3.5.3",
+    "lodash": "^4.2.0",
+    "marked": "^0.3.5"
   },
   "devDependencies": {
     "nodemon": "^1.8.1"
