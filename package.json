@@ -11,7 +11,7 @@
     "postinstall": "[ -f app/config/local.js ] || echo 'module.exports = {};' > app/config/local.js; [ -f worker/config/local.js ] || echo 'module.exports = {};' > worker/config/local.js"
   },
   "author": "Development Seed <dev@developmentseed.org> (https://developmentseed.org)",
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "async": "^1.5.2",
     "boom": "^3.1.2",
