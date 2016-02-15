@@ -13,5 +13,9 @@ try {
 
 // Overrides by ENV variables:
 config.debug = process.env.OC_DEBUG || config.debug;
+config.sourceDb.host = process.env.SOURCEDB_HOST || config.sourceDb.host;
+config.sourceDb.user = process.env.SOURCEDB_USER || config.sourceDb.user;
+config.sourceDb.password = process.env.SOURCEDB_PASS || config.sourceDb.password;
+config.sourceDb.database = process.env.SOURCEDB_DB || config.sourceDb.database;
 
 module.exports = config;

@@ -7,38 +7,38 @@ var sqlite = require('sqlite3');
 var mapISO = require('./tools/map-iso');
 var config = require('./config');
 
-var file = './dsw-dashboard.sqlite'
+var file = './dsw-dashboard.sqlite';
 var finalDb;
 var sourceDb;
 
 async.waterfall([
-  function(callback) {
-    // Create the SQLite db, but first remove the existing one
-    fs.unlink(file, function(err, stats) {
-      // If the file doesn't exist already, don't throw an error
-      if (err && err.code != 'ENOENT') {
+  function (callback) {
+    // Create the SQLite db, but first remove the existing one.
+    fs.unlink(file, function (err, stats) {
+      // If the file doesn't exist already, don't throw an error.
+      if (err && err.code !== 'ENOENT') {
         console.error(err.message);
-        callback(err)
+        return callback(err);
       }
       finalDb = new sqlite.Database(file);
       callback();
     });
   },
-  function(callback) {
+  function (callback) {
     sourceDb = mysql.createConnection(config.sourceDb);
     callback();
   },
-  function(callback) {
-    // Connect to the source DB
-    sourceDb.query('SELECT * FROM dispenser_database', function(err, rows, fields) {
-      callback(err, rows)
-    })
+  function (callback) {
+    // Connect to the source DB.
+    sourceDb.query('SELECT * FROM dispenser_database', function (err, rows, fields) {
+      callback(err, rows);
+    });
   },
-  function(rows,callback) {
-    // Process and write the results to the SQLite
-    finalDb.serialize(function() {
-      finalDb.run("CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, install_date TEXT, ppl_served INTEGER)");
-      var stmt = finalDb.prepare("INSERT INTO dispensers VALUES (?, ?, ?, ?, ?)");
+  function (rows, callback) {
+    // Process and write the results to the SQLite.
+    finalDb.serialize(function () {
+      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, install_date TEXT, ppl_served INTEGER)');
+      var stmt = finalDb.prepare('INSERT INTO dispensers VALUES (?, ?, ?, ?, ?)');
       for (var i in rows) {
         var mappedISO = mapISO(rows[i].district);
         stmt.run([
@@ -53,12 +53,12 @@ async.waterfall([
     });
     callback();
   },
-  function(callback) {
-    // Close all connections
+  function (callback) {
+    // Close all connections.
     finalDb.close();
     sourceDb.end();
     callback();
   }
-], function(err) {
+], function (err) {
   if (err) console.log(err);
-})
+});
