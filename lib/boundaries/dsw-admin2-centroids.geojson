@@ -106,7 +106,7 @@
     { "type": "Feature", "properties": {"NAME": "RUKUNGIRI", "ISO2": "UG-412" }, "geometry": { "type": "Point", "coordinates": [ 29.88911516403147, -0.704937618416395 ] } },
     { "type": "Feature", "properties": {"NAME": "SERERE", "ISO2": "UG-232" }, "geometry": { "type": "Point", "coordinates": [ 33.37277700184017, 1.488336194362487 ] } },
     { "type": "Feature", "properties": {"NAME": "SHEEMA", "ISO2": "UG-425" }, "geometry": { "type": "Point", "coordinates": [ 30.326639319619431, -0.603636441635568 ] } },
-    { "type": "Feature", "properties": {"NAME": "SIRONKO", "ISO2": "UG-425" }, "geometry": { "type": "Point", "coordinates": [ 34.318220864853352, 1.171688801991734 ] } },
+    { "type": "Feature", "properties": {"NAME": "SIRONKO", "ISO2": "UG-215" }, "geometry": { "type": "Point", "coordinates": [ 34.318220864853352, 1.171688801991734 ] } },
     { "type": "Feature", "properties": {"NAME": "SOROTI", "ISO2": "UG-211" }, "geometry": { "type": "Point", "coordinates": [ 33.591014996911682, 1.771676140395704 ] } },
     { "type": "Feature", "properties": {"NAME": "SSEMBABULE", "ISO2": "UG-111" }, "geometry": { "type": "Point", "coordinates": [ 31.339885294067304, -0.026456637715686 ] } },
     { "type": "Feature", "properties": {"NAME": "TORORO", "ISO2": "UG-212" }, "geometry": { "type": "Point", "coordinates": [ 34.082101673867015, 0.72515569560765 ] } },
