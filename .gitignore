@@ -40,6 +40,7 @@
 ################################################
 
 app/config/local.js
+worker/config/local.js
 
 
 
@@ -110,3 +111,5 @@ nbproject
 .node_history
 temp
 tmp
+*.sqlite
+*.sqlite-journal
