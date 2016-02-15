@@ -12,7 +12,6 @@
   "license": "MIT",
   "dependencies": {
     "async": "^1.5.2",
-    "async-waterfall": "^0.1.5",
     "good": "^6.4.0",
     "good-console": "^5.3.0",
     "hapi": "^13.0.0",

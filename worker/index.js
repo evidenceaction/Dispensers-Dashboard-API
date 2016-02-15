@@ -1,7 +1,6 @@
 'use strict';
 
 var async = require('async');
-var waterfall = require('async-waterfall');
 var fs = require('fs');
 var mysql = require('mysql');
 var sqlite = require('sqlite3');
@@ -12,7 +11,7 @@ var file = './dsw-dashboard.sqlite'
 var finalDb;
 var sourceDb;
 
-waterfall([
+async.waterfall([
   function(callback) {
     // Create the SQLite db, but first remove the existing one
     fs.unlink(file, function(err, stats) {
