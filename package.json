@@ -11,13 +11,16 @@
     "postinstall": "[ -f app/config/local.js ] || echo 'module.exports = {};' > app/config/local.js; [ -f worker/config/local.js ] || echo 'module.exports = {};' > worker/config/local.js"
   },
   "author": "Development Seed <dev@developmentseed.org> (https://developmentseed.org)",
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "async": "^1.5.2",
+    "boom": "^3.1.2",
     "good": "^6.4.0",
     "good-console": "^5.3.0",
     "hapi": "^13.0.0",
+    "js-yaml": "^3.5.3",
     "lodash": "^4.2.0",
+    "marked": "^0.3.5",
     "mysql": "^2.10.2",
     "sqlite3": "^3.1.1"
   },
