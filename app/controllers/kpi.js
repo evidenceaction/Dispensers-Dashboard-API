@@ -8,13 +8,14 @@ var knex = require('knex')({
   client: 'sqlite3',
   connection: {
     filename: `${config.baseDir}${config.db}`
-  }
+  },
+  useNullAsDefault: true
 });
 
 module.exports = {
   access: {
     handler: (request, reply) => {
-      knex.select('iso', knex.raw('substr(install_date,1,4) as year'), knex.raw('substr(install_date,6,2) as month')).from('dispensers')
+      knex.select('iso', 'year', 'month').from('dispensers')
         .sum('ppl_served as new_people_served')
         .count('wid as dispensers_installed')
         .groupByRaw('iso, month, year')
@@ -26,9 +27,9 @@ module.exports = {
             timeSteps.push(new Date(d));
           }
 
-          // convert month + year to timestamp
+          // Convert month + year to timestamp
           rows.map(function (row) {
-            row.installation = new Date(moment(`${row.year}${row.month}01`, 'YYYYMMDD'));
+            row.installation = new Date(moment(`${row.year}-${row.month}-01`, 'YYYY-M-DD'));
             return row;
           });
 
