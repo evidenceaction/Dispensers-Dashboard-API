@@ -11,8 +11,6 @@ var knex = require('knex')({
   }
 });
 
-// Todo: Add month + year to sqlite, instead of substring extraction in query
-
 module.exports = {
   access: {
     handler: (request, reply) => {
@@ -72,7 +70,6 @@ module.exports = {
                 });
               }
             });
-            console.log(dispenserCount);
             dispenserData.push(region);
           });
 
