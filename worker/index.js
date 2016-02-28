@@ -37,11 +37,13 @@ async.waterfall([
   function (rows, callback) {
     // Process and write the results to the SQLite.
     finalDb.serialize(function () {
-      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, install_date TEXT, ppl_served INTEGER)');
+      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, install_date TEXT, year INTEGER, month INTEGER, ppl_served INTEGER)');
       var entries = [];
       for (var i in rows) {
         var mappedISO = mapISO(rows[i].district);
-        entries.push(`(${rows[i].waterpoint_id}, "${mappedISO}", "${rows[i].district}", "${rows[i].installation_date}", ${rows[i].pple_served})`);
+        var month = rows[i].installation_date.substring(5, 7);
+        var year = rows[i].installation_date.substring(0, 4);
+        entries.push(`(${rows[i].waterpoint_id}, "${mappedISO}", "${rows[i].district}", "${rows[i].installation_date}", "${year}", "${month}", ${rows[i].pple_served})`);
       }
       finalDb.run('INSERT INTO dispensers VALUES' + entries.join(', '), callback);
     });
