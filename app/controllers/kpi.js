@@ -47,7 +47,7 @@ module.exports = {
 
             _.forEach(timeSteps, function (step) {
               // Check if there is data for a given time-step
-              let match = _.find(r, { 'installation': step });
+              let match = _.find(r, o => o.installation.format('YYYY-MM-DD') === step.format('YYYY-MM-DD'));
               if (match) {
                 // If so, update the counts and add it to the regional values
                 match.dispenser_total = dispenserCount += match.dispensers_installed;
