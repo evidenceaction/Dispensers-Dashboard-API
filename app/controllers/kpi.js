@@ -18,8 +18,8 @@ module.exports = {
           let timeSteps = [];
           var startDate = moment(config.startDate).startOf('month');
           var now = moment();
-          for (let d = startDate; d <= now; d.month(d.month() + 1)) {
-            timeSteps.push(d);
+          for (let d = startDate.clone(); d <= now; d.month(d.month() + 1)) {
+            timeSteps.push(d.clone());
           }
 
           // Convert month + year to timestamp
