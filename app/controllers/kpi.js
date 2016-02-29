@@ -4,13 +4,7 @@ var config = require('../config');
 var moment = require('moment');
 var _ = require('lodash');
 var centroids = require('../data/dsw-admin2-centroids.json');
-var knex = require('knex')({
-  client: 'sqlite3',
-  connection: {
-    filename: `${config.baseDir}${config.db}`
-  },
-  useNullAsDefault: true
-});
+var knex = require('../services/db');
 
 module.exports = {
   access: {
@@ -22,20 +16,23 @@ module.exports = {
         .then(function (rows) {
           // Generate an array with relevant time-steps
           let timeSteps = [];
-          let startDate = moment(config.startDate).startOf('month');
-          for (let d = startDate; d <= moment(); d.month(d.month() + 1)) {
-            timeSteps.push(new Date(d));
+          var startDate = moment(config.startDate).startOf('month');
+          var now = moment();
+          for (let d = startDate; d <= now; d.month(d.month() + 1)) {
+            timeSteps.push(d);
           }
 
           // Convert month + year to timestamp
-          rows.map(function (row) {
-            row.installation = new Date(moment(`${row.year}-${row.month}-01`, 'YYYY-M-DD'));
-            return row;
+          rows.forEach(function (row) {
+            row.installation = moment(`${row.year}-${row.month}-01`, 'YYYY-M-DD');
           });
 
           // Group by ISO code and loop over each region
           let dispenserData = [];
           _(rows).groupBy('iso').forEach(function (r, iso) {
+            if (iso === 'undefined') {
+              return;
+            }
             let region = {
               iso: iso,
               values: []
@@ -44,7 +41,6 @@ module.exports = {
             // Calculate the total dispensers installed and people served
             // prior to start date of the dashboards, before ignoring
             // those objects
-            let startDate = moment(config.startDate).startOf('month');
             let oldInstalls = _.filter(r, function (o) { return o.installation < startDate; });
             let dispenserCount = _.sumBy(oldInstalls, 'dispensers_installed');
             let peopleCount = _.sumBy(oldInstalls, 'new_people_served');
@@ -75,9 +71,9 @@ module.exports = {
           });
 
           // Add an array with centroids for the regions
-          // TODO: check performance of _.uniq
+          let isos = _.map(dispenserData, 'iso');
           let geoData = [];
-          _.forEach(_.uniq(_.map(rows, 'iso')), function (iso) {
+          _.forEach(isos, function (iso) {
             geoData.push(_.find(centroids, {'iso': iso}));
           });
 
