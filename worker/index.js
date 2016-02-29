@@ -49,6 +49,25 @@ async.waterfall([
     });
   },
   function (callback) {
+    // Connect to the source DB.
+    sourceDb.query('SELECT * FROM issues', function (err, rows, fields) {
+      callback(err, rows);
+    });
+  },
+  function (rows, callback) {
+    // Process and write the results to the SQLite.
+    finalDb.serialize(function () {
+      finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
+      var entries = [];
+      for (var i in rows) {
+        var month = rows[i].date_created.substring(3, 5);
+        var year = rows[i].date_created.substring(6, 9);
+        entries.push(`(${rows[i].waterpoint_id}, "${rows[i].category}", "${rows[i].date_created}", "${year}", "${month}")`);
+      }
+      finalDb.run('INSERT INTO issues VALUES' + entries.join(', '), callback);
+    });
+  },
+  function (callback) {
     // Close all connections.
     finalDb.close();
     sourceDb.end();
