@@ -5,7 +5,7 @@ var knex = require('knex');
 var db = knex({
   client: 'sqlite3',
   connection: {
-    filename: `${config.baseDir}/../${config.db}`
+    filename: `${config.baseDir}/${config.db}`
   },
   debug: true,
   useNullAsDefault: true
