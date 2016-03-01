@@ -20,7 +20,7 @@ function generateTimesteps (startDate) {
 // Generate a date for each object
 function addTimestep (rows) {
   rows.forEach(function (row) {
-    row.timestep = moment(`${row.year}-${row.month}-01`, 'YYYY-M-DD');
+    row.timestep = moment(`${row.year}-${row.month}-01`, 'YYYY-MM-DD');
   });
   return rows;
 }
@@ -40,7 +40,7 @@ module.exports = {
         .groupByRaw('iso, month, year')
         .then(function (rows) {
           // Generate an array with relevant time-steps
-          let startDate = moment(config.startDate).startOf('month');
+          let startDate = moment.utc(config.startDate).startOf('month');
           let timeSteps = generateTimesteps(startDate);
 
           // Add the timestep to each data point
@@ -105,6 +105,7 @@ module.exports = {
         });
     }
   },
+
   usage: {
     handler: (request, reply) => {
       reply({
@@ -113,6 +114,7 @@ module.exports = {
       });
     }
   },
+
   reliability: {
     handler: (request, reply) => {
       Promise.all([
@@ -130,7 +132,7 @@ module.exports = {
 
         // Generate an array with relevant time-steps
         // Issues are only logged since 2015-07-01
-        let startDate = moment('2015-07-01', 'YYYY-MM-DD').startOf('month');
+        let startDate = moment.utc('2015-07-01').startOf('month');
         let timeSteps = generateTimesteps(startDate);
 
         // Add the timestep to each data point
@@ -194,6 +196,7 @@ module.exports = {
       });
     }
   },
+
   carbon: {
     handler: (request, reply) => {
       reply({
