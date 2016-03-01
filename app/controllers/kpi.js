@@ -1,6 +1,5 @@
 'use strict';
 var boom = require('boom');
-var Promise = require('bluebird');
 var config = require('../config');
 var moment = require('moment');
 var _ = require('lodash');
