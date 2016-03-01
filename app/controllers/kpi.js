@@ -173,6 +173,7 @@ module.exports = {
               outagesTimestep.outages[o.category] = o.outages_reported;
             }
           });
+          outagesTimestep.outages['total'] = _(outagesTimestep.outages).map().sum();
           outageValues.push(outagesTimestep);
         });
 
