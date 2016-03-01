@@ -11,6 +11,8 @@ var file = './dsw-dashboard.sqlite';
 var finalDb;
 var sourceDb;
 
+// TOO: Improve parallelize independent sql statements
+
 async.waterfall([
   function (callback) {
     // Create the SQLite db, but first remove the existing one.
@@ -46,6 +48,43 @@ async.waterfall([
         entries.push(`(${rows[i].waterpoint_id}, "${mappedISO}", "${rows[i].district}", "${rows[i].installation_date}", "${year}", "${month}", ${rows[i].pple_served})`);
       }
       finalDb.run('INSERT INTO dispensers VALUES' + entries.join(', '), callback);
+    });
+  },
+  function (callback) {
+    // Connect to the source DB.
+    sourceDb.query('SELECT * FROM issues', function (err, rows, fields) {
+      callback(err, rows);
+    });
+  },
+  function (rows, callback) {
+    // Process and write the results to the SQLite.
+    finalDb.serialize(function () {
+      finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
+      var entries = [];
+      for (var i in rows) {
+        var splitDate = rows[i].date_created.split('-');
+        var month = splitDate[1];
+        var year = splitDate[2];
+        entries.push(`(${rows[i].waterpoint_id}, "${rows[i].category}", "${rows[i].date_created}", "${year}", "${month}")`);
+      }
+      finalDb.run('INSERT INTO issues VALUES' + entries.join(', '), callback);
+    });
+  },
+  function (callback) {
+    // Connect to the source DB.
+    sourceDb.query('SELECT * FROM issues_category', function (err, rows, fields) {
+      callback(err, rows);
+    });
+  },
+  function (rows, callback) {
+    // Process and write the results to the SQLite.
+    finalDb.serialize(function () {
+      finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
+      var entries = [];
+      for (var i in rows) {
+        entries.push(`(${rows[i].id}, "${rows[i].category}")`);
+      }
+      finalDb.run('INSERT INTO issues_category VALUES' + entries.join(', '), callback);
     });
   },
   function (callback) {

@@ -11,6 +11,4 @@ var db = knex({
   useNullAsDefault: true
 });
 
-console.log('description', config.baseDir);
-
 module.exports = db;
