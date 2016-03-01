@@ -60,7 +60,6 @@ module.exports = {
             // Calculate the total dispensers installed and people served
             // prior to start date of the dashboards, before ignoring
             // those objects
-            console.log(startDate);
             let dispenserCount = sumOldData(r, 'dispensers_installed', startDate);
             let peopleCount = sumOldData(r, 'new_people_served', startDate);
 
@@ -183,7 +182,7 @@ module.exports = {
           let m = _.assign(d, _.find(outageValues, o => o.timestep.format('YYYY-MM-DD') === d.timestep.format('YYYY-MM-DD')));
           finalValues.push(m);
         });
-        
+
         return reply({
           meta: outageMeta,
           data: finalValues
