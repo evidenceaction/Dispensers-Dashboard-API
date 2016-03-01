@@ -11,6 +11,8 @@ var file = './dsw-dashboard.sqlite';
 var finalDb;
 var sourceDb;
 
+// TOO: Improve parallelize independent sql statements
+
 async.waterfall([
   function (callback) {
     // Create the SQLite db, but first remove the existing one.
@@ -60,8 +62,9 @@ async.waterfall([
       finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
       var entries = [];
       for (var i in rows) {
-        var month = rows[i].date_created.substring(3, 5);
-        var year = rows[i].date_created.substring(6, 9);
+        var splitDate = rows[i].date_created.split('-');
+        var month = splitDate[1];
+        var year = splitDate[2];
         entries.push(`(${rows[i].waterpoint_id}, "${rows[i].category}", "${rows[i].date_created}", "${year}", "${month}")`);
       }
       finalDb.run('INSERT INTO issues VALUES' + entries.join(', '), callback);
