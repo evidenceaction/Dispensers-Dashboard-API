@@ -71,6 +71,23 @@ async.waterfall([
     });
   },
   function (callback) {
+    // Connect to the source DB.
+    sourceDb.query('SELECT * FROM issues_category', function (err, rows, fields) {
+      callback(err, rows);
+    });
+  },
+  function (rows, callback) {
+    // Process and write the results to the SQLite.
+    finalDb.serialize(function () {
+      finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
+      var entries = [];
+      for (var i in rows) {
+        entries.push(`(${rows[i].id}, "${rows[i].category}")`);
+      }
+      finalDb.run('INSERT INTO issues_category VALUES' + entries.join(', '), callback);
+    });
+  },
+  function (callback) {
     // Close all connections.
     finalDb.close();
     sourceDb.end();

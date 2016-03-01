@@ -183,8 +183,9 @@ module.exports = {
           let m = _.assign(d, _.find(outageValues, o => o.timestep.format('YYYY-MM-DD') === d.timestep.format('YYYY-MM-DD')));
           finalValues.push(m);
         });
-
+        
         return reply({
+          meta: outageMeta,
           data: finalValues
         });
       }).catch(function (err) {
