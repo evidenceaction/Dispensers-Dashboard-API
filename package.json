@@ -14,6 +14,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "async": "^1.5.2",
+    "bluebird": "^3.3.3",
     "boom": "^3.1.2",
     "good": "^6.4.0",
     "good-console": "^5.3.0",
