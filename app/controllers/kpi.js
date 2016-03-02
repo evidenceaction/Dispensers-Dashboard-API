@@ -19,7 +19,7 @@ function generateTimesteps (startDate) {
 // Generate a date for each object
 function addTimestep (rows) {
   rows.forEach(function (row) {
-    row.timestep = moment(`${row.year}-${row.month}-01`, 'YYYY-MM-DD');
+    row.timestep = moment.utc(`${row.year}-${row.month}-01`);
   });
   return rows;
 }
