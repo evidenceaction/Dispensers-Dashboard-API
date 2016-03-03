@@ -5,6 +5,7 @@ var moment = require('moment');
 var _ = require('lodash');
 var centroids = require('../data/dsw-admin2-centroids.json');
 var knex = require('../services/db');
+var dataLoader = require('../utils/yaml-md-loader');
 
 // Generate an array with timesteps relevant for the dashboards
 function generateTimesteps (startDate) {
@@ -33,7 +34,9 @@ function sumOldData (allData, field, startDate) {
 module.exports = {
   access: {
     handler: (request, reply) => {
-      knex.select('iso', 'year', 'month').from('dispensers')
+      let contentP = dataLoader(`${config.baseDir}/content/section-access-home.md`);
+
+      let dataP = knex.select('iso', 'year', 'month').from('dispensers')
         .sum('ppl_served as new_people_served')
         .count('wid as dispensers_installed')
         .groupByRaw('iso, month, year')
@@ -94,11 +97,18 @@ module.exports = {
             geoData.push(_.find(centroids, {'iso': iso}));
           });
 
-          return reply({
+          return {
             data: dispenserData,
             geo: geoData
-          });
-        }).catch(function (err) {
+          };
+        });
+
+      Promise.all([dataP, contentP])
+        .then(res => {
+          res[0].content = res[1];
+          reply(res[0]);
+        })
+        .catch(err => {
           console.log('err', err);
           reply(boom.wrap(err));
         });
@@ -116,7 +126,9 @@ module.exports = {
 
   reliability: {
     handler: (request, reply) => {
-      Promise.all([
+      let contentP = dataLoader(`${config.baseDir}/content/section-reliability-home.md`);
+
+      let dataP = Promise.all([
         knex.select('year', 'month').from('dispensers')
         .count('wid as dispensers_installed')
         .groupByRaw('month, year'),
@@ -185,14 +197,21 @@ module.exports = {
           finalValues.push(m);
         });
 
-        return reply({
+        return {
           meta: outageMeta,
           data: finalValues
-        });
-      }).catch(function (err) {
-        console.log('err', err);
-        reply(boom.wrap(err));
+        };
       });
+
+      Promise.all([dataP, contentP])
+        .then(res => {
+          res[0].content = res[1];
+          reply(res[0]);
+        })
+        .catch(err => {
+          console.log('err', err);
+          reply(boom.wrap(err));
+        });
     }
   },
 
