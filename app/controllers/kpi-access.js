@@ -16,7 +16,7 @@ module.exports = {
     let dataP = knex.select('iso', 'year', 'month').from('dispensers')
       .sum('ppl_served as new_people_served')
       .count('wid as dispensers_installed')
-      .groupByRaw('iso, month, year')
+      .groupBy('iso', 'month', 'year')
       .then(function (rows) {
         // Generate an array with relevant time-steps
         let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');

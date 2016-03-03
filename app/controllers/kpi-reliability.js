@@ -15,10 +15,10 @@ module.exports = {
     let dataP = Promise.all([
       knex.select('year', 'month').from('dispensers')
       .count('wid as dispensers_installed')
-      .groupByRaw('month, year'),
+      .groupBy('month', 'year'),
       knex.select('category', 'year', 'month').from('issues')
       .count('rowid as outages_reported')
-      .groupByRaw('month, year, category'),
+      .groupBy('month', 'year', 'category'),
       knex.select('id', 'category').from('issues_category')
     ]).then(function (results) {
       let dispenserData = results[0];
