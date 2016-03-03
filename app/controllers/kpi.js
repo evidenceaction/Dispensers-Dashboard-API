@@ -6,30 +6,8 @@ var _ = require('lodash');
 var centroids = require('../data/dsw-admin2-centroids.json');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
-
-// Generate an array with timesteps relevant for the dashboards
-function generateTimesteps (startDate) {
-  let timeSteps = [];
-  var now = moment();
-  for (let d = startDate.clone(); d <= now; d.month(d.month() + 1)) {
-    timeSteps.push(d.clone());
-  }
-  return timeSteps;
-}
-
-// Generate a date for each object
-function addTimestep (rows) {
-  rows.forEach(function (row) {
-    row.timestep = moment.utc(`${row.year}-${row.month}-01`, 'YYYY-MM-DD');
-  });
-  return rows;
-}
-
-// Sum data for a particular field, prior to startDate of the dashboards
-function sumOldData (allData, field, startDate) {
-  let oldData = _.filter(allData, function (o) { return o.timestep < startDate; });
-  return _.sumBy(oldData, field);
-}
+var steps = require('../utils/timesteps');
+var utils = require('../utils/data-utils');
 
 module.exports = {
   access: {
@@ -43,10 +21,10 @@ module.exports = {
         .then(function (rows) {
           // Generate an array with relevant time-steps
           let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
-          let timeSteps = generateTimesteps(startDate);
+          let timeSteps = steps.generateSteps(startDate);
 
           // Add the timestep to each data point
-          rows = addTimestep(rows);
+          rows = steps.addStep(rows);
 
           // Group by ISO code and loop over each region
           let dispenserData = [];
@@ -62,8 +40,8 @@ module.exports = {
             // Calculate the total dispensers installed and people served
             // prior to start date of the dashboards, before ignoring
             // those objects
-            let dispenserCount = sumOldData(r, 'dispensers_installed', startDate);
-            let peopleCount = sumOldData(r, 'new_people_served', startDate);
+            let dispenserCount = utils.sumOldData(r, 'dispensers_installed', startDate);
+            let peopleCount = utils.sumOldData(r, 'new_people_served', startDate);
 
             _.forEach(timeSteps, function (step) {
               // Check if there is data for a given time-step
@@ -144,14 +122,14 @@ module.exports = {
         // Generate an array with relevant time-steps
         // Issues are only logged since 2015-07-01
         let startDate = moment.utc('2015-07-01', 'YYYY-MM-DD').startOf('month');
-        let timeSteps = generateTimesteps(startDate);
+        let timeSteps = steps.generateSteps(startDate);
 
         // Add the timestep to each data point
-        dispenserData = addTimestep(dispenserData);
-        outageData = addTimestep(outageData);
+        dispenserData = steps.addStep(dispenserData);
+        outageData = steps.addStep(outageData);
 
         // Calculate dispenser total prior to startDate dashboards
-        let dispenserCount = sumOldData(dispenserData, 'dispensers_installed', startDate);
+        let dispenserCount = utils.sumOldData(dispenserData, 'dispensers_installed', startDate);
 
         // Generate dispenser objects per timestep
         let dispenserValues = [];
