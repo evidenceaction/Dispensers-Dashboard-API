@@ -3,7 +3,7 @@ var fs = require('fs');
 var yaml = require('js-yaml');
 var marked = require('marked');
 
-module.exports = function (path, cb) {
+module.exports = function (path) {
   return new Promise((resolve, reject) => {
     fs.readFile(path, 'utf8', function (err, doc) {
       if (err) {
