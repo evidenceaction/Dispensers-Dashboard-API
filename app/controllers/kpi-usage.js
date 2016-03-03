@@ -1,0 +1,19 @@
+'use strict';
+var boom = require('boom');
+var config = require('../config');
+var moment = require('moment');
+var _ = require('lodash');
+var centroids = require('../data/dsw-admin2-centroids.json');
+var knex = require('../services/db');
+var dataLoader = require('../utils/yaml-md-loader');
+var steps = require('../utils/timesteps');
+var utils = require('../utils/data-utils');
+
+module.exports = {
+  handler: (request, reply) => {
+    reply({
+      statusCode: 200,
+      message: 'Usage'
+    });
+  }
+};
