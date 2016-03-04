@@ -6,7 +6,6 @@ var _ = require('lodash');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
 var steps = require('../utils/timesteps');
-var utils = require('../utils/data-utils');
 
 module.exports = {
   handler: (request, reply) => {
@@ -14,37 +13,46 @@ module.exports = {
 
     let dataP = knex.select('wid', 'tcr', 'fcr', 'country', 'year', 'month').from('adoption')
       .then(function (rows) {
+        // Group on year and month
+        _.forEach(rows, o => o.ym = `${o.year}-${o.month}`);
+        let groupedData = _.groupBy(rows, 'ym');
+
+        // Calculate the average readings by group
+        let averageReadings = [];
+        _.forEach(groupedData, function (group, i) {
+          let fcrPositiveReadings = _.countBy(group, o => o.fcr > 0);
+          let fcrTotalReadings = _.countBy(group, o => _.isNumber(o.fcr));
+
+          let tcrPositiveReadings = _.countBy(group, o => o.tcr > 0);
+          let tcrTotalReadings = _.countBy(group, o => _.isNumber(o.tcr));
+
+          let stepValues = {
+            timestep: moment.utc(`${i}-01`, 'YYYY-MM-DD'),
+            fcr_avg: fcrPositiveReadings.true / fcrTotalReadings.true * 100,
+            tcr_avg: tcrPositiveReadings.true / tcrTotalReadings.true * 100
+          };
+          averageReadings.push(stepValues);
+        });
+
         // Generate an array with relevant time-steps
         let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
         let timeSteps = steps.generateSteps(startDate);
 
-        // Add the timestep to each data point
-        let adoptionData = steps.addStep(rows);
-
-        let groupedData = _.groupBy(adoptionData, 'timestep');
-
+        // Store the final data, ensuring there is data for each timestep
         let finalValues = [];
         _.forEach(timeSteps, function (step) {
-          let stepValues = {
-            timestep: step
-          };
-
-          if (groupedData[step]) {
-            let s = groupedData[step];
-
-            let fcr_positives = _.countBy(s, o => o.fcr > 0);
-            let fcr_total = _.countBy(s, o => _.isNumber(o.fcr));
-
-            let tcr_positives = _.countBy(s, o => o.tcr > 0);
-            let tcr_total = _.countBy(s, o => _.isNumber(o.tcr));
-
-            stepValues.fcr_avg = fcr_positives.true / fcr_total.true * 100;
-            stepValues.tcr_avg = tcr_positives.true / tcr_total.true * 100;
+          // Check if there is data for a given time-step
+          let match = _.find(averageReadings, o => o.timestep.format('YYYY-MM-DD') === step.format('YYYY-MM-DD'));
+          if (match) {
+            finalValues.push(match);
           } else {
-            stepValues.fcr_avg = null;
-            stepValues.tcr_avg = null;
+            // Otherwise create a new object for the time-step
+            finalValues.push({
+              timestep: step,
+              fcr_avg: null,
+              tcr_avg: null
+            });
           }
-          finalValues.push(stepValues);
         });
 
         return {
