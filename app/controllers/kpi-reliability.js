@@ -45,7 +45,7 @@ module.exports = {
         if (match) {
           // If so, update the counts and add it to the regional values
           match.dispenser_total = dispenserCount += match.dispensers_installed;
-          // delete match['dispensers_installed'];
+          delete match['dispensers_installed'];
           delete match['year'];
           delete match['month'];
           dispenserValues.push(match);
@@ -61,23 +61,40 @@ module.exports = {
       // Generate outage objects per timestep
       let outageValues = [];
       _.forEach(timeSteps, function (step) {
-        let outagesTimestep = {
-          timestep: step,
-          outages: {}
-        };
+        let outages = {};
         _.forEach(outageData, function (o) {
           if (o.timestep.format('YYYY-MM-DD') === step.format('YYYY-MM-DD')) {
-            outagesTimestep.outages[o.category] = o.outages_reported;
+            outages[o.category] = o.outages_reported;
           }
         });
-        outagesTimestep.outages['total'] = _(outagesTimestep.outages).map().sum();
-        outageValues.push(outagesTimestep);
+        // This assumes that all non-chlorine related outages are in fact
+        // hardware outages
+        let total = _(outages).map().sum();
+        let chlorine = outages[30];
+
+        let outagesTs = {
+          timestep: step,
+          outages: {
+            total: total,
+            chlorine: chlorine,
+            hardware: total - chlorine
+          }
+        };
+
+        outageValues.push(outagesTs);
       });
 
-      // Merge outages and dispensers
+      // Merge outages and dispensers and calculate the totals and rates
       var finalValues = [];
       _.forEach(dispenserValues, function (d) {
         let m = _.assign(d, _.find(outageValues, o => o.timestep.format('YYYY-MM-DD') === d.timestep.format('YYYY-MM-DD')));
+        m['functional'] = {
+          total: m.dispenser_total - m.outages.total,
+          total_rate: (m.dispenser_total - m.outages.total) / m.dispenser_total * 100
+        };
+        m.outages['total_rate'] = m.outages['total'] / m.dispenser_total * 100;
+        m.outages['chlorine_rate'] = m.outages['chlorine'] / m.dispenser_total * 100;
+        m.outages['hardware_rate'] = m.outages['hardware'] / m.dispenser_total * 100;
         finalValues.push(m);
       });
 
