@@ -1,6 +1,5 @@
 'use strict';
 var moment = require('moment');
-var _ = require('lodash');
 
 // Generate an array with timesteps relevant for the dashboards
 module.exports.generateSteps = function (startDate) {
@@ -10,7 +9,7 @@ module.exports.generateSteps = function (startDate) {
     timeSteps.push(d.clone());
   }
   return timeSteps;
-}
+};
 
 // Add a date object to each object in an array
 module.exports.addStep = function (rows) {
@@ -18,4 +17,4 @@ module.exports.addStep = function (rows) {
     row.timestep = moment.utc(`${row.year}-${row.month}-01`, 'YYYY-MM-DD');
   });
   return rows;
-}
+};

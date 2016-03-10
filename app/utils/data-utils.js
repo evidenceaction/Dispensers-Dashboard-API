@@ -5,4 +5,4 @@ var _ = require('lodash');
 module.exports.sumOldData = function (allData, field, startDate) {
   let oldData = _.filter(allData, o => o.timestep < startDate);
   return _.sumBy(oldData, field);
-}
+};
