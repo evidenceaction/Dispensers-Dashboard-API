@@ -3,7 +3,6 @@ var boom = require('boom');
 var config = require('../config');
 var moment = require('moment');
 var _ = require('lodash');
-var centroids = require('../data/dsw-admin2-centroids.json');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
 var steps = require('../utils/timesteps');
