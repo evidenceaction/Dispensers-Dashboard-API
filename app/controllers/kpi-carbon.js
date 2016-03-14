@@ -1,18 +1,21 @@
 'use strict';
 var boom = require('boom');
 var config = require('../config');
-var moment = require('moment');
-var _ = require('lodash');
-var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
-var steps = require('../utils/timesteps');
-var utils = require('../utils/data-utils');
+var carbonData = require('../data/carbon-data.json');
 
 module.exports = {
   handler: (request, reply) => {
-    reply({
-      statusCode: 200,
-      message: 'carbon'
-    });
+    let contentP = dataLoader(`${config.baseDir}/content/section-carbon-home.md`);
+
+    Promise.all([carbonData, contentP])
+      .then(res => {
+        res[0].content = res[1];
+        reply(res[0]);
+      })
+      .catch(err => {
+        console.log('err', err);
+        reply(boom.wrap(err));
+      });
   }
 };
