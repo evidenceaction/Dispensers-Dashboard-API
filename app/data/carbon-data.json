@@ -1,21 +1,7 @@
 {
-  "meta": [
-    {
-      "id": 1,
-      "name": "Uganda"
-    },
-    {
-      "id": 2,
-      "name": "Kenya"
-    },
-    {
-      "id": 3,
-      "name": "Malawi"
-    }
-  ],
   "data": [
     {
-      "id": 1,
+      "country": "Uganda",
       "values": [
         {
           "timestep": "2013-01-01T00:00:00.000Z",
@@ -36,7 +22,7 @@
       ]
     },
     {
-      "id": 2,
+      "country": "Kenya",
       "values": [
         {
           "timestep": "2013-01-01T00:00:00.000Z",
@@ -57,7 +43,7 @@
       ]
     },
     {
-      "id": 3,
+      "country": "Malawi",
       "values": [
         {
           "timestep": "2013-01-01T00:00:00.000Z",
