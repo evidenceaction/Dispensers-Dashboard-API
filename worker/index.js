@@ -60,7 +60,7 @@ async.waterfall([
         });
       },
       function (cb) {
-        sourceDb.query('SELECT * FROM dsw_per_adoption_rates WHERE c803_tcr_reading REGEXP "^[0-9]+\\.?[0-9]*$"', function (err, rows, fields) {
+        sourceDb.query('SELECT * FROM dsw_per_adoption_rates WHERE c803_tcr_reading REGEXP "^[0-9]+\\.?[0-9]*$" AND year > 0', function (err, rows, fields) {
           cb(err, rows);
         });
       },
