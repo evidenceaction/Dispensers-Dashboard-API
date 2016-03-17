@@ -42,18 +42,23 @@ module.exports = {
         let readingsTs = 0;
 
         _.forEach(_.groupBy(tsGroup, 'program'), function (prGroup, prI) {
+          let tcrAvgProgram;
+          let dispenserTs;
+
           // Any reading > 0 is considered positive
           let tcrPositivesProgram = _.countBy(prGroup, o => o.tcr > 0);
 
           // Calculate the average amount of positives for the program
-          let tcrAvgProgram = tcrPositivesProgram.true / prGroup.length * 100;
+          if (tcrPositivesProgram.true) {
+            tcrAvgProgram = tcrPositivesProgram.true / prGroup.length * 100;
 
-          // Get the dispenser totals for this program
-          let dispenserTs = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
+            // Get the dispenser totals for this program
+            dispenserTs = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
 
-          if (dispenserTs) {
-            // Add average readings, multiplied by total dispensers in the program
-            readingsTs += tcrAvgProgram * dispenserTs.dispensers_total;
+            if (dispenserTs) {
+              // Add average readings, multiplied by total dispensers in the program
+              readingsTs += tcrAvgProgram * dispenserTs.dispensers_total;
+            }
           }
         });
 
