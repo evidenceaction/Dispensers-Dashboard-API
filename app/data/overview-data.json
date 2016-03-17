@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "kpi": "access",
+      "value": "2200400",
+      "format": "absolute",
+      "description": "people with access"
+    },
+    {
+      "kpi": "usage",
+      "value": "54",
+      "format": "percent",
+      "description": "adoption rate"
+    },
+    {
+      "kpi": "reliability",
+      "value": "98.9",
+      "format": "percent",
+      "description": "dispensers without outages"
+    },
+    {
+      "kpi": "carbon",
+      "value": "632018",
+      "format": "absolute",
+      "description": "carbon credits generated"
+    }
+  ]
+}
