@@ -6,7 +6,6 @@ var _ = require('lodash');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
 var steps = require('../utils/timesteps');
-var utils = require('../utils/data-utils');
 
 module.exports = {
   handler: (request, reply) => {
@@ -18,6 +17,10 @@ module.exports = {
     ]).then(function (results) {
       let adoptionData = results[0];
       let dispenserData = results[1];
+
+      // Generate an array with relevant time-steps
+      let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
+      let timeSteps = steps.generateSteps(startDate);
 
       // ######################################################################
       // Calculate the use rate
@@ -36,11 +39,9 @@ module.exports = {
       let averageReadings = [];
       // Group by timestep and by program
       _.forEach(_.groupBy(adoptionData, 'ym'), function (tsGroup, tsI) {
-        console.log(tsGroup);
         let readingsTs = 0;
 
         _.forEach(_.groupBy(tsGroup, 'program'), function (prGroup, prI) {
-          console.log(prI);
           // Any reading > 0 is considered positive
           let tcrPositivesProgram = _.countBy(prGroup, o => o.tcr > 0);
 
@@ -48,18 +49,26 @@ module.exports = {
           let tcrAvgProgram = tcrPositivesProgram.true / prGroup.length * 100;
 
           // Get the dispenser totals for this program
-          let dispenserTs = _.find(dispenserData, { month: 1, year: 2015, program: prI });
-          console.log(prI, dispenserTs);
+          let dispenserTs = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
 
           if (dispenserTs) {
             // Add average readings, multiplied by total dispensers in the program
-            readingsTs += tcrAvgProgram * dispenserTs.dispenser_total;
+            readingsTs += tcrAvgProgram * dispenserTs.dispensers_total;
           }
         });
-        dispenserData.push(program);
+
+        // Get the total amount of dispensers installed this month
+        let dispensersTotal = _.sumBy(_.filter(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year }), 'dispensers_total');
+        averageReadings.push({
+          timestep: moment.utc(tsI, 'YYYY-MM'),
+          tcr_avg: readingsTs / dispensersTotal,
+          debug: {
+            readings: readingsTs,
+            dis_total: dispensersTotal
+          }
+        });
       });
 
-      // Store the final data, ensuring there is data for each timestep
       let finalValues = [];
       _.forEach(timeSteps, function (step) {
         // Check if there is data for a given time-step
@@ -70,11 +79,13 @@ module.exports = {
           // Otherwise create a new object for the time-step
           finalValues.push({
             timestep: step,
-            tcr_avg: null
+            tcr_avg: null,
+            debug: {
+              message: 'No readings found'
+            }
           });
         }
       });
-    });
 
       return {
         meta: {
