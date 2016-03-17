@@ -34,7 +34,7 @@ async.waterfall([
   function (callback) {
     // Process and write the results to the SQLite.
     finalDb.parallelize(function () {
-      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, install_date TEXT, year INTEGER, month INTEGER, ppl_served INTEGER)');
+      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, program TEXT, install_date TEXT, year INTEGER, month INTEGER, ppl_served INTEGER)');
       finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
       finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
       finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr DECIMAL, fcr DECIMAL, country INTEGER, month INTEGER, year INTEGER)');
@@ -88,7 +88,7 @@ async.waterfall([
         var mappedISO = mapISO(dispensers[di].district);
         var month = dispensers[di].installation_date.substring(5, 7);
         var year = dispensers[di].installation_date.substring(0, 4);
-        d.push(`(${dispensers[di].waterpoint_id}, "${mappedISO}", "${dispensers[di].district}", "${dispensers[di].installation_date}", "${year}", "${month}", ${dispensers[di].pple_served})`);
+        d.push(`(${dispensers[di].waterpoint_id}, "${mappedISO}", "${dispensers[di].district}", "${dispensers[di].program_name}", "${dispensers[di].installation_date}", "${year}", "${month}", ${dispensers[di].pple_served})`);
       }
       finalDb.run('INSERT INTO dispensers VALUES' + d.join(', '));
 

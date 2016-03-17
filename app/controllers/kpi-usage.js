@@ -6,6 +6,7 @@ var _ = require('lodash');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
 var steps = require('../utils/timesteps');
+var utils = require('../utils/data-utils');
 
 module.exports = {
   handler: (request, reply) => {
@@ -55,15 +56,41 @@ module.exports = {
             readingsTs += tcrAvgProgram * dispenserTs.dispenser_total;
           }
         });
-
-        // Get the total amount of dispensers for the full project
-        let dispenserCount = _.sumBy(_.filter(dispenserData, { month: 1, year: 2015 }), 'dispenser_total');
-        let stepValues = {
-          timestep: moment.utc(`${tsI}-01`, 'YYYY-MM-DD'),
-          tcr_avg: readingsTs / dispenserCount
-        };
-        averageReadings.push(stepValues);
+        dispenserData.push(program);
       });
+
+      // Store the final data, ensuring there is data for each timestep
+      let finalValues = [];
+      _.forEach(timeSteps, function (step) {
+        // Check if there is data for a given time-step
+        let match = _.find(averageReadings, o => o.timestep.format('YYYY-MM-DD') === step.format('YYYY-MM-DD'));
+        if (match) {
+          finalValues.push(match);
+        } else {
+          // Otherwise create a new object for the time-step
+          finalValues.push({
+            timestep: step,
+            tcr_avg: null
+          });
+        }
+      });
+    });
+
+      return {
+        meta: {
+          tresholds: [
+            {
+              name: 'Minimum',
+              value: 30
+            },
+            {
+              name: 'Maximum',
+              value: 60
+            }
+          ]
+        },
+        data: finalValues
+      };
     });
 
     Promise.all([dataP, contentP])
