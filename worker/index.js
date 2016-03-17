@@ -34,10 +34,10 @@ async.waterfall([
   function (callback) {
     // Process and write the results to the SQLite.
     finalDb.parallelize(function () {
-      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, install_date TEXT, year INTEGER, month INTEGER, ppl_served INTEGER)');
+      finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, program TEXT, install_date TEXT, year INTEGER, month INTEGER, ppl_served INTEGER)');
       finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
       finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
-      finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr DECIMAL, fcr DECIMAL, country INTEGER, month INTEGER, year INTEGER)');
+      finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr DECIMAL, program TEXT, country INTEGER, month INTEGER, year INTEGER)');
       finalDb.run('CREATE TABLE dispenser_totals (program TEXT, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER)');
     });
     callback();
@@ -60,7 +60,7 @@ async.waterfall([
         });
       },
       function (cb) {
-        sourceDb.query('SELECT * FROM dsw_per_adoption_rates', function (err, rows, fields) {
+        sourceDb.query('SELECT * FROM dsw_per_adoption_rates WHERE c803_tcr_reading REGEXP "^[0-9]+\\.?[0-9]*$" AND year > 0', function (err, rows, fields) {
           cb(err, rows);
         });
       },
@@ -88,7 +88,7 @@ async.waterfall([
         var mappedISO = mapISO(dispensers[di].district);
         var month = dispensers[di].installation_date.substring(5, 7);
         var year = dispensers[di].installation_date.substring(0, 4);
-        d.push(`(${dispensers[di].waterpoint_id}, "${mappedISO}", "${dispensers[di].district}", "${dispensers[di].installation_date}", "${year}", "${month}", ${dispensers[di].pple_served})`);
+        d.push(`(${dispensers[di].waterpoint_id}, "${mappedISO}", "${dispensers[di].district}", "${dispensers[di].program_name}", "${dispensers[di].installation_date}", "${year}", "${month}", ${dispensers[di].pple_served})`);
       }
       finalDb.run('INSERT INTO dispensers VALUES' + d.join(', '));
 
@@ -109,7 +109,7 @@ async.waterfall([
 
       var a = [];
       for (var ai in adoption_rates) {
-        a.push(`("${adoption_rates[ai].c102_wpt_id}", "${adoption_rates[ai].c803_tcr_reading}", "${adoption_rates[ai].c806_fcr_reading}", "${adoption_rates[ai].country}", "${adoption_rates[ai].month}", "${adoption_rates[ai].year}")`);
+        a.push(`("${adoption_rates[ai].c102_wpt_id}", "${adoption_rates[ai].c803_tcr_reading}", "${adoption_rates[ai].program}", "${adoption_rates[ai].country}", "${adoption_rates[ai].month}", "${adoption_rates[ai].year}")`);
       }
       finalDb.run('INSERT INTO adoption VALUES' + a.join(', '));
 

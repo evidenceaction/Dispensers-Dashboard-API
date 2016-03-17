@@ -11,66 +11,103 @@ module.exports = {
   handler: (request, reply) => {
     let contentP = dataLoader(`${config.baseDir}/content/section-usage-home.md`);
 
-    let dataP = knex.select('wid', 'tcr', 'fcr', 'country', 'year', 'month').from('adoption')
-      .then(function (rows) {
-        // Group on year and month
-        _.forEach(rows, o => o.ym = `${o.year}-${o.month}`);
-        let groupedData = _.groupBy(rows, 'ym');
+    let dataP = Promise.all([
+      knex.select().from('adoption'),
+      knex.select().from('dispenser_totals')
+    ]).then(function (results) {
+      let adoptionData = results[0];
+      let dispenserData = results[1];
 
-        // Calculate the average readings by group
-        let averageReadings = [];
-        _.forEach(groupedData, function (group, i) {
-          let fcrPositiveReadings = _.countBy(group, o => o.fcr > 0);
-          let fcrTotalReadings = _.countBy(group, o => _.isNumber(o.fcr));
+      // Generate an array with relevant time-steps
+      let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
+      let timeSteps = steps.generateSteps(startDate);
 
-          let tcrPositiveReadings = _.countBy(group, o => o.tcr > 0);
-          let tcrTotalReadings = _.countBy(group, o => _.isNumber(o.tcr));
+      // ######################################################################
+      // Calculate the use rate
 
-          let stepValues = {
-            timestep: moment.utc(`${i}-01`, 'YYYY-MM-DD'),
-            fcr_avg: fcrPositiveReadings.true / fcrTotalReadings.true * 100,
-            tcr_avg: tcrPositiveReadings.true / tcrTotalReadings.true * 100
-          };
-          averageReadings.push(stepValues);
-        });
+      // Notes on general method.
+      // Sampling (1.5%) is done by program, ~8 households measured per waterpoint
+      // Any reading > 0 is a positive reading
+      //
+      // Calculate:
+      // 1. avg reading per program
+      // 2. avg reading for whole DSW, weighted by dispenser count
 
-        // Generate an array with relevant time-steps
-        let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
-        let timeSteps = steps.generateSteps(startDate);
+      // Add indication of timestamp
+      _.forEach(adoptionData, o => o.ym = `${o.year}-${o.month}`);
 
-        // Store the final data, ensuring there is data for each timestep
-        let finalValues = [];
-        _.forEach(timeSteps, function (step) {
-          // Check if there is data for a given time-step
-          let match = _.find(averageReadings, o => o.timestep.format('YYYY-MM-DD') === step.format('YYYY-MM-DD'));
-          if (match) {
-            finalValues.push(match);
-          } else {
-            // Otherwise create a new object for the time-step
-            finalValues.push({
-              timestep: step,
-              fcr_avg: null,
-              tcr_avg: null
-            });
+      let averageReadings = [];
+      // Group by timestep and by program
+      _.forEach(_.groupBy(adoptionData, 'ym'), function (tsGroup, tsI) {
+        let readingsTs = 0;
+
+        _.forEach(_.groupBy(tsGroup, 'program'), function (prGroup, prI) {
+          let tcrAvgProgram;
+          let dispenserTs;
+
+          // Any reading > 0 is considered positive
+          let tcrPositivesProgram = _.countBy(prGroup, o => o.tcr > 0);
+
+          // Calculate the average amount of positives for the program
+          if (tcrPositivesProgram.true) {
+            tcrAvgProgram = tcrPositivesProgram.true / prGroup.length * 100;
+
+            // Get the dispenser totals for this program
+            dispenserTs = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
+
+            if (dispenserTs) {
+              // Add average readings, multiplied by total dispensers in the program
+              readingsTs += tcrAvgProgram * dispenserTs.dispensers_total;
+            }
           }
         });
 
-        return {
-          meta: {
-            tresholds: [
-              {
-                name: 'Minimum',
-                value: 30
-              },
-              {
-                name: 'Maximum',
-                value: 60
-              }
-            ]
-          },
-          data: finalValues
-        };
+        // Get the total amount of dispensers installed this month
+        let dispensersTotal = _.sumBy(_.filter(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year }), 'dispensers_total');
+        averageReadings.push({
+          timestep: moment.utc(tsI, 'YYYY-MM'),
+          tcr_avg: readingsTs / dispensersTotal,
+          debug: {
+            readings: readingsTs,
+            dis_total: dispensersTotal
+          }
+        });
       });
+
+      let finalValues = [];
+      _.forEach(timeSteps, function (step) {
+        // Check if there is data for a given time-step
+        let match = _.find(averageReadings, o => o.timestep.format('YYYY-MM-DD') === step.format('YYYY-MM-DD'));
+        if (match) {
+          finalValues.push(match);
+        } else {
+          // Otherwise create a new object for the time-step
+          finalValues.push({
+            timestep: step,
+            tcr_avg: null,
+            debug: {
+              message: 'No readings found'
+            }
+          });
+        }
+      });
+
+      return {
+        meta: {
+          tresholds: [
+            {
+              name: 'Minimum',
+              value: 30
+            },
+            {
+              name: 'Maximum',
+              value: 60
+            }
+          ]
+        },
+        data: finalValues
+      };
+    });
 
     Promise.all([dataP, contentP])
       .then(res => {
