@@ -6,6 +6,9 @@ var mysql = require('mysql');
 var sqlite = require('sqlite3');
 var mapISO = require('./tools/map-iso');
 var config = require('./config');
+var _ = require('lodash');
+var moment = require('moment');
+var steps = require('../app/utils/timesteps');
 
 var file = './dsw-dashboard.sqlite';
 var finalDb;
@@ -35,6 +38,7 @@ async.waterfall([
       finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
       finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
       finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr DECIMAL, fcr DECIMAL, country INTEGER, month INTEGER, year INTEGER)');
+      finalDb.run('CREATE TABLE dispenser_totals (program TEXT, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER)');
     });
     callback();
   },
@@ -59,6 +63,11 @@ async.waterfall([
         sourceDb.query('SELECT * FROM dsw_per_adoption_rates', function (err, rows, fields) {
           cb(err, rows);
         });
+      },
+      function (cb) {
+        sourceDb.query('SELECT program_name, month, year, COUNT(waterpoint_id) AS dispensers_installed FROM evidence_action_dsw.dispenser_database GROUP BY program_name, month, year;', function (err, rows, fields) {
+          cb(err, rows);
+        });
       }
     ], function (err, results) {
       if (err) console.log(err);
@@ -70,6 +79,7 @@ async.waterfall([
     var issues = results[1];
     var issues_cat = results[2];
     var adoption_rates = results[3];
+    var dispenser_totals = results[4];
 
     // Process and write the results to the SQLite.
     finalDb.parallelize(function () {
@@ -102,6 +112,26 @@ async.waterfall([
         a.push(`("${adoption_rates[ai].c102_wpt_id}", "${adoption_rates[ai].c803_tcr_reading}", "${adoption_rates[ai].c806_fcr_reading}", "${adoption_rates[ai].country}", "${adoption_rates[ai].month}", "${adoption_rates[ai].year}")`);
       }
       finalDb.run('INSERT INTO adoption VALUES' + a.join(', '));
+
+      var dc = [];
+      let startDate = moment.utc('2008-01-01', 'YYYY-MM-DD');
+      let timeSteps = steps.generateSteps(startDate);
+
+      // Add data for each timestep, even if no dispensers are installed
+      _.forEach(_.groupBy(dispenser_totals, 'program_name'), function (group, programName) {
+        let dispenserCount = 0;
+        _.forEach(timeSteps, function (step) {
+          let match = _.find(group, { year: step.year(), month: step.month() + 1 });
+          if (match) {
+            dispenserCount += match.dispensers_installed;
+            dc.push(`("${programName}", "${match.year}", "${match.month}", "${match.dispensers_installed}", "${dispenserCount}")`);
+          } else {
+            dc.push(`("${programName}", "${step.year()}", "${step.month() + 1}", "0", "${dispenserCount}")`);
+          }
+        });
+      });
+
+      finalDb.run('INSERT INTO dispenser_totals VALUES' + dc.join(', '));
     });
     callback();
   },
