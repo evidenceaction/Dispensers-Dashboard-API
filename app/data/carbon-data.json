@@ -1,0 +1,67 @@
+{
+  "data": [
+    {
+      "country": "Uganda",
+      "values": [
+        {
+          "timestep": "2013-01-01T00:00:00.000Z",
+          "credits": 0
+        },
+        {
+          "timestep": "2014-01-01T00:00:00.000Z",
+          "credits": 26817
+        },
+        {
+          "timestep": "2015-01-01T00:00:00.000Z",
+          "credits": 97176
+        },
+        {
+          "timestep": "2016-01-01T00:00:00.000Z",
+          "credits": 194352
+        }
+      ]
+    },
+    {
+      "country": "Kenya",
+      "values": [
+        {
+          "timestep": "2013-01-01T00:00:00.000Z",
+          "credits": 82019
+        },
+        {
+          "timestep": "2014-01-01T00:00:00.000Z",
+          "credits": 184081
+        },
+        {
+          "timestep": "2015-01-01T00:00:00.000Z",
+          "credits": 260584
+        },
+        {
+          "timestep": "2016-01-01T00:00:00.000Z",
+          "credits": 283771
+        }
+      ]
+    },
+    {
+      "country": "Malawi",
+      "values": [
+        {
+          "timestep": "2013-01-01T00:00:00.000Z",
+          "credits": 0
+        },
+        {
+          "timestep": "2014-01-01T00:00:00.000Z",
+          "credits": 0
+        },
+        {
+          "timestep": "2015-01-01T00:00:00.000Z",
+          "credits": 67639
+        },
+        {
+          "timestep": "2016-01-01T00:00:00.000Z",
+          "credits": 130822
+        }
+      ]
+    }
+  ]
+}
