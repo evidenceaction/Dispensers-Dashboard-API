@@ -109,7 +109,8 @@ async.waterfall([
 
       var a = [];
       for (var ai in adoption_rates) {
-        a.push(`("${adoption_rates[ai].c102_wpt_id}", "${adoption_rates[ai].c803_tcr_reading}", "${adoption_rates[ai].program}", "${adoption_rates[ai].country}", "${adoption_rates[ai].month}", "${adoption_rates[ai].year}")`);
+        let tcr = adoption_rates[ai].c803_tcr_reading > 0 ? 1 : 0;
+        a.push(`("${adoption_rates[ai].c102_wpt_id}", "${tcr}", "${adoption_rates[ai].program}", "${adoption_rates[ai].country}", "${adoption_rates[ai].month}", "${adoption_rates[ai].year}")`);
       }
       finalDb.run('INSERT INTO adoption VALUES' + a.join(', '));
 
