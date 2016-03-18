@@ -37,7 +37,7 @@ async.waterfall([
       finalDb.run('CREATE TABLE dispensers (wid INTEGER, iso TEXT, district TEXT, program TEXT, install_date TEXT, year INTEGER, month INTEGER, ppl_served INTEGER)');
       finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
       finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
-      finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr DECIMAL, program TEXT, country INTEGER, month INTEGER, year INTEGER)');
+      finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr_positive DECIMAL, program TEXT, country INTEGER, month INTEGER, year INTEGER)');
       finalDb.run('CREATE TABLE dispenser_totals (program TEXT, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER)');
     });
     callback();

@@ -30,8 +30,9 @@ module.exports = {
       // Any reading > 0 is a positive reading
       //
       // Calculate:
-      // 1. avg reading per program
-      // 2. avg reading for whole DSW, weighted by dispenser count
+      // 1. avg reading per waterpoint (not weighing by household)
+      // 2. avg reading per program
+      // 3. avg reading for whole DSW, weighted by dispenser count
 
       // Add indication of timestamp
       _.forEach(adoptionData, o => o.ym = `${o.year}-${o.month}`);
@@ -39,37 +40,32 @@ module.exports = {
       let averageReadings = [];
       // Group by timestep and by program
       _.forEach(_.groupBy(adoptionData, 'ym'), function (tsGroup, tsI) {
-        let readingsTs = 0;
+        let adoptionTs = 0;
 
         _.forEach(_.groupBy(tsGroup, 'program'), function (prGroup, prI) {
-          let tcrAvgProgram;
-          let dispenserTs;
+          // The average is just the mean of positive (1) and negative (0) readings
+          let adoptionWp = [];
+          _.forEach(_.groupBy(prGroup, 'wid'), function (wpGroup, wpI) {
+            adoptionWp.push(_.chain(wpGroup).map('tcr_positive').mean().value());
+          });
 
-          // Any reading > 0 is considered positive
-          let tcrPositivesProgram = _.countBy(prGroup, o => o.tcr > 0);
+          // Get the dispenser totals for this program
+          let dispensersProgram = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
 
-          // Calculate the average amount of positives for the program
-          if (tcrPositivesProgram.true) {
-            tcrAvgProgram = tcrPositivesProgram.true / prGroup.length * 100;
-
-            // Get the dispenser totals for this program
-            dispenserTs = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
-
-            if (dispenserTs) {
-              // Add average readings, multiplied by total dispensers in the program
-              readingsTs += tcrAvgProgram * dispenserTs.dispensers_total;
-            }
+          if (dispensersProgram) {
+            // Add average readings, multiplied by total dispensers in the program
+            adoptionTs += _.mean(adoptionWp) * dispensersProgram.dispensers_total;
           }
         });
 
         // Get the total amount of dispensers installed this month
-        let dispensersTotal = _.sumBy(_.filter(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year }), 'dispensers_total');
+        let dispensersTs = _.sumBy(_.filter(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year }), 'dispensers_total');
         averageReadings.push({
           timestep: moment.utc(tsI, 'YYYY-MM'),
-          tcr_avg: readingsTs / dispensersTotal,
+          tcr_avg: adoptionTs / dispensersTs * 100,
           debug: {
-            readings: readingsTs,
-            dis_total: dispensersTotal
+            readings: adoptionTs,
+            dis_total: dispensersTs
           }
         });
       });
