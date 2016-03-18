@@ -5,22 +5,30 @@ var moment = require('moment');
 var _ = require('lodash');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
-var steps = require('../utils/timesteps');
 
 module.exports = {
   handler: (request, reply) => {
     let contentP = dataLoader(`${config.baseDir}/content/section-usage-home.md`);
+    let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
 
-    let dataP = Promise.all([
-      knex.select().from('adoption'),
-      knex.select().from('dispenser_totals')
-    ]).then(function (results) {
-      let adoptionData = results[0];
-      let dispenserData = results[1];
-
-      // Generate an array with relevant time-steps
-      let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
-      let timeSteps = steps.generateSteps(startDate);
+    let dataP = knex.raw(`
+      SELECT
+        d.*,
+        /*sum(a.tcr_positive) as positive,*/
+        /*count(a.tcr_positive) as total,*/
+        /*avg(a.tcr_positive) as avg,*/
+        d.year || "-" || d.month as date,
+        avg(a.tcr_positive) * d.dispensers_total as avg_dispenser
+      FROM dispenser_totals d
+      LEFT JOIN adoption a
+        ON a.program = d.program
+        AND a.year = d.year
+        AND a.month = d.month
+      WHERE date >= "${startDate.format('YYYY-M')}"
+      GROUP BY d.program, d.year, d.month
+    `).then(function (results) {
+      // console.timeEnd('query');
+      // console.time('perf');
 
       // ######################################################################
       // Calculate the use rate
@@ -30,68 +38,43 @@ module.exports = {
       // Any reading > 0 is a positive reading
       //
       // Calculate:
-      // 1. avg reading per program
-      // 2. avg reading for whole DSW, weighted by dispenser count
-
-      // Add indication of timestamp
-      _.forEach(adoptionData, o => o.ym = `${o.year}-${o.month}`);
-
+      // The sql query return the avg adoption rate per program-year-month.
+      // It also provides the total amount of dispensers.
+      //
+      // The next code calculates the avg adoption rate per timestep
+      // weighing each program's avg by total dispensers installed.
       let averageReadings = [];
-      // Group by timestep and by program
-      _.forEach(_.groupBy(adoptionData, 'ym'), function (tsGroup, tsI) {
-        let readingsTs = 0;
-
-        _.forEach(_.groupBy(tsGroup, 'program'), function (prGroup, prI) {
-          let tcrAvgProgram;
-          let dispenserTs;
-
-          // Any reading > 0 is considered positive
-          let tcrPositivesProgram = _.countBy(prGroup, o => o.tcr > 0);
-
-          // Calculate the average amount of positives for the program
-          if (tcrPositivesProgram.true) {
-            tcrAvgProgram = tcrPositivesProgram.true / prGroup.length * 100;
-
-            // Get the dispenser totals for this program
-            dispenserTs = _.find(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year, program: prI });
-
-            if (dispenserTs) {
-              // Add average readings, multiplied by total dispensers in the program
-              readingsTs += tcrAvgProgram * dispenserTs.dispensers_total;
-            }
-          }
-        });
-
-        // Get the total amount of dispensers installed this month
-        let dispensersTotal = _.sumBy(_.filter(dispenserData, { month: tsGroup[0].month, year: tsGroup[0].year }), 'dispensers_total');
-        averageReadings.push({
-          timestep: moment.utc(tsI, 'YYYY-MM'),
-          tcr_avg: readingsTs / dispensersTotal,
-          debug: {
-            readings: readingsTs,
-            dis_total: dispensersTotal
-          }
-        });
-      });
-
-      let finalValues = [];
-      _.forEach(timeSteps, function (step) {
-        // Check if there is data for a given time-step
-        let match = _.find(averageReadings, o => o.timestep.format('YYYY-MM-DD') === step.format('YYYY-MM-DD'));
-        if (match) {
-          finalValues.push(match);
-        } else {
-          // Otherwise create a new object for the time-step
-          finalValues.push({
-            timestep: step,
-            tcr_avg: null,
-            debug: {
-              message: 'No readings found'
+      _(results)
+        .groupBy('date')
+        .forEach((o, tsI) => {
+          // Total dispensers per time period.
+          let totalXPeriod = 0;
+          // Avg dispensers in use per time period.
+          let inUseXPeriod = 0;
+          _.forEach(o, d => {
+            // A null means that there's no reading and shouldn't be taken into
+            // account (it's not a 0)
+            if (d.avg_dispenser !== null) {
+              inUseXPeriod += d.avg_dispenser;
+              totalXPeriod += d.dispensers_total;
             }
           });
-        }
-      });
 
+          averageReadings.push({
+            timestep: moment.utc(tsI, 'YYYY-MM'),
+            tcr_avg: inUseXPeriod / totalXPeriod * 100,
+            debug: {
+              readings: inUseXPeriod,
+              dis_total: totalXPeriod
+            }
+          });
+        });
+
+      let finalValues = _(averageReadings)
+        .orderBy('timestep')
+        .value();
+
+      // console.timeEnd('perf');
       return {
         meta: {
           tresholds: [
@@ -109,6 +92,7 @@ module.exports = {
       };
     });
 
+    // console.time('query');
     Promise.all([dataP, contentP])
       .then(res => {
         res[0].content = res[1];
