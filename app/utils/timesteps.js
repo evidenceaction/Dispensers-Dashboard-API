@@ -14,7 +14,7 @@ module.exports.generateSteps = function (startDate) {
 // Add a date object to each object in an array
 module.exports.addStep = function (rows) {
   rows.forEach(function (row) {
-    row.timestep = moment.utc(`${row.year}-${row.month}-01`, 'YYYY-MM-DD');
+    row.timestep = moment.utc(`${row.year}-${row.month}-01`, 'YYYY-M-DD');
   });
   return rows;
 };
