@@ -5,6 +5,7 @@ var moment = require('moment');
 var _ = require('lodash');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
+var steps = require('../utils/timesteps');
 
 module.exports = {
   handler: (request, reply) => {
@@ -14,21 +15,20 @@ module.exports = {
     let dataP = knex.raw(`
       SELECT
         d.*,
-        /*sum(a.tcr_positive) as positive,*/
-        /*count(a.tcr_positive) as total,*/
-        /*avg(a.tcr_positive) as avg,*/
-        d.year || "-" || d.month as date,
         avg(a.tcr_positive) * d.dispensers_total as avg_dispenser
-      FROM dispenser_totals d
+      FROM dispenser_program d
       LEFT JOIN adoption a
         ON a.program = d.program
         AND a.year = d.year
         AND a.month = d.month
-      WHERE date >= "${startDate.format('YYYY-M')}"
+      WHERE d.year >= "${startDate.format('YYYY')}"
       GROUP BY d.program, d.year, d.month
     `).then(function (results) {
       // console.timeEnd('query');
       // console.time('perf');
+
+      // Add timestep to each row
+      results = steps.addStep(results);
 
       // ######################################################################
       // Calculate the use rate
@@ -43,9 +43,11 @@ module.exports = {
       //
       // The next code calculates the avg adoption rate per timestep
       // weighing each program's avg by total dispensers installed.
-      let averageReadings = [];
+
+      let finalValues = [];
       _(results)
-        .groupBy('date')
+        .filter(o => o.timestep >= startDate)
+        .groupBy('timestep')
         .forEach((o, tsI) => {
           // Total dispensers per time period.
           let totalXPeriod = 0;
@@ -60,8 +62,8 @@ module.exports = {
             }
           });
 
-          averageReadings.push({
-            timestep: moment.utc(tsI, 'YYYY-MM'),
+          finalValues.push({
+            timestep: moment.utc(tsI),
             tcr_avg: inUseXPeriod / totalXPeriod * 100,
             debug: {
               readings: inUseXPeriod,
@@ -69,10 +71,6 @@ module.exports = {
             }
           });
         });
-
-      let finalValues = _(averageReadings)
-        .orderBy('timestep')
-        .value();
 
       // console.timeEnd('perf');
       return {
