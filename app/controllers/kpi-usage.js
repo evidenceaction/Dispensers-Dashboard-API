@@ -46,7 +46,7 @@ module.exports = {
 
       let finalValues = [];
       _(results)
-        .filter(o => o.timestep >= startDate)
+        .filter(o => o.timestep >= startDate && o.timestep < moment.utc().startOf('month'))
         .groupBy('timestep')
         .forEach((o, tsI) => {
           // Total dispensers per time period.
@@ -63,7 +63,7 @@ module.exports = {
           });
 
           finalValues.push({
-            timestep: moment.utc(tsI),
+            timestep: moment.utc(tsI).format('YYYY-MM-DD'),
             tcr_avg: inUseXPeriod / totalXPeriod * 100,
             debug: {
               readings: inUseXPeriod,
