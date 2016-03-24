@@ -20,8 +20,8 @@ module.exports = {
       FROM dispenser_district d
       WHERE year >= "${startDate.format('YYYY')}"
     `).then(function (results) {
-      console.timeEnd('query');
-      console.time('perf');
+      // console.timeEnd('query');
+      // console.time('perf');
 
       // Add timestep to each row
       results = steps.addStep(results);
@@ -31,7 +31,7 @@ module.exports = {
 
       // Groups dispenser data by ISO code, returns an object of arrays
       // mapValues maps over the objects and omits obsolete properties and
-      //  filters by startDate
+      // filters by startDate
       // map turns it all into key value records
       let finalValues = _(results)
         .groupBy('iso')
@@ -42,14 +42,14 @@ module.exports = {
       let geoData = _(finalValues)
         .map(o => _.find(centroids, {'iso': o.iso}));
 
-      console.timeEnd('perf');
+      // console.timeEnd('perf');
       return {
         data: finalValues,
         geo: geoData
       };
     });
 
-    console.time('query');
+    // console.time('query');
     Promise.all([dataP, contentP])
     .then(res => {
       res[0].content = res[1];
