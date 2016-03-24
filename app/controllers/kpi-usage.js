@@ -63,7 +63,7 @@ module.exports = {
           });
 
           finalValues.push({
-            timestep: moment.utc(tsI),
+            timestep: moment.utc(tsI).format('YYYY-MM-DD'),
             tcr_avg: inUseXPeriod / totalXPeriod * 100,
             debug: {
               readings: inUseXPeriod,
