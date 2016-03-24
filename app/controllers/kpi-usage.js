@@ -46,7 +46,7 @@ module.exports = {
 
       let finalValues = [];
       _(results)
-        .filter(o => o.timestep >= startDate)
+        .filter(o => o.timestep >= startDate && o.timestep < moment.utc().startOf('month'))
         .groupBy('timestep')
         .forEach((o, tsI) => {
           // Total dispensers per time period.
