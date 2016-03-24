@@ -7,7 +7,7 @@ var db = knex({
   connection: {
     filename: `${config.baseDir}/${config.db}`
   },
-  debug: true,
+  debug: false,
   useNullAsDefault: true
 });
 
