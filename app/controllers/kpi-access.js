@@ -16,7 +16,7 @@ module.exports = {
       return reply(boom.badRequest('No valid country'));
     }
 
-    let contentP = dataLoader(`${config.baseDir}/content/section-access-home.md`);
+    let contentP = dataLoader(`${config.baseDir}/content/section-access-${request.params.country || 'home'}.md`);
     let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
 
     let dataP = knex.raw(`
@@ -26,8 +26,8 @@ module.exports = {
       FROM dispenser_district d
       WHERE year >= "${startDate.format('YYYY')}" AND country IN (${countrySlice})
     `).then(function (results) {
-      console.timeEnd('query');
-      console.time('perf');
+      // console.timeEnd('query');
+      // console.time('perf');
 
       // Add timestep to each row
       results = steps.addStep(results);
@@ -48,14 +48,14 @@ module.exports = {
       let geoData = _(finalValues)
         .map(o => _.find(centroids, {'iso': o.iso}));
 
-      console.timeEnd('perf');
+      // console.timeEnd('perf');
       return {
         data: finalValues,
         geo: geoData
       };
     });
 
-    console.time('query');
+    // console.time('query');
     Promise.all([dataP, contentP])
     .then(res => {
       res[0].content = res[1];

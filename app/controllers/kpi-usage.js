@@ -15,7 +15,7 @@ module.exports = {
       return reply(boom.badRequest('No valid country'));
     }
 
-    let contentP = dataLoader(`${config.baseDir}/content/section-usage-home.md`);
+    let contentP = dataLoader(`${config.baseDir}/content/section-usage-${request.params.country || 'home'}.md`);
     let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
 
     let dataP = knex.raw(`

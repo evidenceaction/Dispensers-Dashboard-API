@@ -15,7 +15,7 @@ module.exports = {
       return reply(boom.badRequest('No valid country'));
     }
 
-    let contentP = dataLoader(`${config.baseDir}/content/section-reliability-home.md`);
+    let contentP = dataLoader(`${config.baseDir}/content/section-reliability-${request.params.country || 'home'}.md`);
 
     // Issues are only logged since 2015-07-01
     let startDate = moment.utc('2015-07-01', 'YYYY-MM-DD').startOf('month');

@@ -15,7 +15,7 @@ module.exports = {
 
     let dataP = _(carbonData).filter(o => (countrySlice.indexOf(o.id) > -1));
 
-    let contentP = dataLoader(`${config.baseDir}/content/section-carbon-home.md`);
+    let contentP = dataLoader(`${config.baseDir}/content/section-carbon-${request.params.country || 'home'}.md`);
 
     Promise.all([dataP, contentP])
       .then(res => {
