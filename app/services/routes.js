@@ -8,9 +8,9 @@ var usage = require('../controllers/kpi-usage');
 
 module.exports = [
   { method: 'GET', path: '/', config: base.index },
-  { method: 'GET', path: '/kpi/access', config: access },
-  { method: 'GET', path: '/kpi/carbon', config: carbon },
-  { method: 'GET', path: '/kpi/overview', config: overview },
-  { method: 'GET', path: '/kpi/reliability', config: reliability },
-  { method: 'GET', path: '/kpi/usage', config: usage }
+  { method: 'GET', path: '/kpi/access/{country?}', config: access },
+  { method: 'GET', path: '/kpi/carbon/{country?}', config: carbon },
+  { method: 'GET', path: '/kpi/overview/{country?}', config: overview },
+  { method: 'GET', path: '/kpi/reliability/{country?}', config: reliability },
+  { method: 'GET', path: '/kpi/usage/{country?}', config: usage }
 ];
