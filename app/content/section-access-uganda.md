@@ -1,5 +1,5 @@
 ---
-title: Section Access
+title: Section Access Uganda
 ---
 *This data is coming straight from the server and was written in markdown.*  
 Check the server's `app/content` folder.
