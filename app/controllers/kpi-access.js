@@ -7,10 +7,16 @@ var centroids = require('../data/dsw-admin2-centroids.json');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
 var steps = require('../utils/timesteps');
+var utils = require('../utils/data-utils');
 
 module.exports = {
   handler: (request, reply) => {
-    let contentP = dataLoader(`${config.baseDir}/content/section-access-home.md`);
+    let countrySlice = utils.parseCountry(request.params.country);
+    if (countrySlice === 99) {
+      return reply(boom.badRequest('No valid country'));
+    }
+
+    let contentP = dataLoader(`${config.baseDir}/content/section-access-${request.params.country || 'home'}.md`);
     let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
 
     let dataP = knex.raw(`
@@ -18,7 +24,7 @@ module.exports = {
         d.*,
         d.year || "-" || d.month as date
       FROM dispenser_district d
-      WHERE year >= "${startDate.format('YYYY')}"
+      WHERE year >= "${startDate.format('YYYY')}" AND country IN (${countrySlice})
     `).then(function (results) {
       // console.timeEnd('query');
       // console.time('perf');

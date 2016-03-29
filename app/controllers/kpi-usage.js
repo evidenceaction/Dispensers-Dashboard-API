@@ -6,10 +6,16 @@ var _ = require('lodash');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
 var steps = require('../utils/timesteps');
+var utils = require('../utils/data-utils');
 
 module.exports = {
   handler: (request, reply) => {
-    let contentP = dataLoader(`${config.baseDir}/content/section-usage-home.md`);
+    let countrySlice = utils.parseCountry(request.params.country);
+    if (countrySlice === 99) {
+      return reply(boom.badRequest('No valid country'));
+    }
+
+    let contentP = dataLoader(`${config.baseDir}/content/section-usage-${request.params.country || 'home'}.md`);
     let startDate = moment.utc(config.startDate, 'YYYY-MM-DD').startOf('month');
 
     let dataP = knex.raw(`
@@ -21,7 +27,7 @@ module.exports = {
         ON a.program = d.program
         AND a.year = d.year
         AND a.month = d.month
-      WHERE d.year >= "${startDate.format('YYYY')}"
+      WHERE d.year >= "${startDate.format('YYYY')}" AND d.country IN (${countrySlice})
       GROUP BY d.program, d.year, d.month
     `).then(function (results) {
       // console.timeEnd('query');

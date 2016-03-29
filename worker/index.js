@@ -34,11 +34,11 @@ async.waterfall([
   function (callback) {
     // Process and write the results to the SQLite.
     finalDb.parallelize(function () {
-      finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER)');
+      finalDb.run('CREATE TABLE issues (wid INTEGER, category INTEGER, issue_date TEXT, year INTEGER, month INTEGER, country INTEGER)');
       finalDb.run('CREATE TABLE issues_category (id INTEGER, category TEXT)');
       finalDb.run('CREATE TABLE adoption (wid INTEGER, tcr_positive DECIMAL, program TEXT, country INTEGER, month INTEGER, year INTEGER)');
-      finalDb.run('CREATE TABLE dispenser_program (program TEXT, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER)');
-      finalDb.run('CREATE TABLE dispenser_district (iso TEXT, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER, new_people_served INTEGER, people_total INTEGER)');
+      finalDb.run('CREATE TABLE dispenser_program (program TEXT, country INTEGER, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER)');
+      finalDb.run('CREATE TABLE dispenser_district (iso TEXT, country INTEGER, year INTEGER, month INTEGER, dispensers_installed INTEGER, dispensers_total INTEGER, new_people_served INTEGER, people_total INTEGER)');
     });
     callback();
   },
@@ -65,7 +65,7 @@ async.waterfall([
         });
       },
       function (cb) {
-        sourceDb.query('SELECT program_name, month, year, COUNT(waterpoint_id) AS dispensers_installed FROM dispenser_database GROUP BY program_name, month, year;', function (err, rows, fields) {
+        sourceDb.query('SELECT program_name, country, month, year, COUNT(waterpoint_id) AS dispensers_installed FROM dispenser_database GROUP BY program_name, month, year;', function (err, rows, fields) {
           cb(err, rows);
         });
       }
@@ -91,7 +91,7 @@ async.waterfall([
         let splitDate = issues[ii].date_created.split('-');
         let month = splitDate[1];
         let year = splitDate[2];
-        is.push(`(${issues[ii].waterpoint_id}, "${issues[ii].category}", "${issues[ii].date_created}", "${year}", "${month}")`);
+        is.push(`(${issues[ii].waterpoint_id}, "${issues[ii].category}", "${issues[ii].date_created}", "${year}", "${month}", "${issues[ii].country}")`);
       }
       finalDb.run('INSERT INTO issues VALUES' + is.join(', '));
 
@@ -116,9 +116,9 @@ async.waterfall([
           let match = _.find(group, { year: step.year(), month: step.month() + 1 });
           if (match) {
             dispenserCount += match.dispensers_installed;
-            dp.push(`("${programName}", "${match.year}", "${match.month}", "${match.dispensers_installed}", "${dispenserCount}")`);
+            dp.push(`("${programName}", "${match.country}", "${match.year}", "${match.month}", "${match.dispensers_installed}", "${dispenserCount}")`);
           } else {
-            dp.push(`("${programName}", "${step.year()}", "${step.month() + 1}", "0", "${dispenserCount}")`);
+            dp.push(`("${programName}", "${group[0].country}", "${step.year()}", "${step.month() + 1}", "0", "${dispenserCount}")`);
           }
         });
       });
@@ -143,7 +143,7 @@ async.waterfall([
           let pAdded = _.sumBy(d, 'pple_served');
           dCount += dAdded;
           pCount += pAdded;
-          dd.push(`("${iso}", "${step.year()}", "${step.month() + 1}", "${dAdded}", "${dCount}", "${pAdded}", "${pCount}")`);
+          dd.push(`("${iso}", "${r[0].country}", "${step.year()}", "${step.month() + 1}", "${dAdded}", "${dCount}", "${pAdded}", "${pCount}")`);
         });
       });
 

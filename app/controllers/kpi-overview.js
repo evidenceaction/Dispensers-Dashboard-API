@@ -6,7 +6,7 @@ var overviewData = require('../data/overview-data.json');
 
 module.exports = {
   handler: (request, reply) => {
-    let contentP = dataLoader(`${config.baseDir}/content/section-overview-home.md`);
+    let contentP = dataLoader(`${config.baseDir}/content/section-overview-${request.params.country || 'home'}.md`);
 
     Promise.all([overviewData, contentP])
       .then(res => {
