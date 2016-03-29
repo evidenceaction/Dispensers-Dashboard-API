@@ -57,12 +57,53 @@ module.exports.useRate = function (results, startDate) {
         }
       });
 
+      // Add monthly rates, including the total readings and dispensers
+      // totalXPeriod only includes dispensers from programs that were sampled
+      // so may deviate from total dispensers installed
       finalValues.push({
         timestep: moment.utc(tsI).format('YYYY-MM-DD'),
         tcr_avg: inUseXPeriod / totalXPeriod * 100,
-        raw_readings: inUseXPeriod,
-        raw_total_dispensers: totalXPeriod
+        raw_total_positives: inUseXPeriod,
+        raw_dispensers_measured: totalXPeriod
       });
     });
+  return finalValues;
+};
+
+module.exports.reliabilityRate = function (results, startDate) {
+  let dispenserData = results[0];
+  let outageData = results[1];
+
+  // Add the timestep to each data point
+  dispenserData = steps.addStep(dispenserData);
+  outageData = steps.addStep(outageData);
+
+  let outageValues = _(outageData)
+    .filter(o => o.timestep >= startDate && o.timestep <= moment.utc())
+    .groupBy('timestep')
+    .map((o, i) => ({
+      'timestep': o[0].timestep,
+      'outages': {
+        'total': _.sumBy(o, 'outages_reported'),
+        'chlorine': _(o).filter({'category': 30}).sumBy('outages_reported')
+      }
+    }))
+    .value();
+
+  // Merge outages and dispensers and calculate the totals and rates
+  var finalValues = [];
+  _.forEach(outageValues, function (o) {
+    let totalDispensers = _(dispenserData).filter(d => o.timestep.format('YYYY-MM-DD') === d.timestep.format('YYYY-MM-DD')).sumBy('dispensers_total');
+    o['functional'] = {
+      total: totalDispensers - o.outages.total,
+      total_rate: (totalDispensers - o.outages.total) / totalDispensers * 100
+    };
+    o.outages['hardware'] = o.outages['total'] - o.outages['chlorine'];
+    o.outages['total_rate'] = o.outages['total'] / totalDispensers * 100;
+    o.outages['chlorine_rate'] = o.outages['chlorine'] / totalDispensers * 100;
+    o.outages['hardware_rate'] = o.outages['hardware'] / totalDispensers * 100;
+    finalValues.push(o);
+  });
+
   return finalValues;
 };
