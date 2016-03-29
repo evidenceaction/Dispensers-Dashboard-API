@@ -46,8 +46,8 @@ module.exports = {
         .whereIn('country', countrySlice)
         .groupBy('month', 'year', 'category')
     ]).then(function (results) {
-      console.timeEnd('query');
-      console.time('perf');
+      // console.timeEnd('query');
+      // console.time('perf');
       let dispenserData = results[0];
       let usageData = results[1];
       let reliabilityData = [results[2], results[3]];
@@ -98,13 +98,13 @@ module.exports = {
         'description': 'carbon credits generated'
       });
 
-      console.timeEnd('perf');
+      // console.timeEnd('perf');
       return {
         'data': finalValues
       };
     });
 
-    console.time('query');
+    // console.time('query');
     Promise.all([dataP, contentP])
       .then(res => {
         res[0].content = res[1];

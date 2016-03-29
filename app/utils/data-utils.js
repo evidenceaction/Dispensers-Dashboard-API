@@ -57,11 +57,16 @@ module.exports.useRate = function (results, startDate) {
         }
       });
 
+      // Since this is grouped by timestep, fetch the moment object from the
+      // first result.
+      // Can't use 'tsI', which stopped being a moment object in the groupBy
+      let ts = o[0].timestep;
+
       // Add monthly rates, including the total readings and dispensers
       // totalXPeriod only includes dispensers from programs that were sampled
       // so may deviate from total dispensers installed
       finalValues.push({
-        timestep: moment.utc(tsI).format('YYYY-MM-DD'),
+        timestep: ts.format('YYYY-MM-DD'),
         tcr_avg: inUseXPeriod / totalXPeriod * 100,
         raw_total_positives: inUseXPeriod,
         raw_dispensers_measured: totalXPeriod
