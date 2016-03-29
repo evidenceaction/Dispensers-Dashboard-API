@@ -37,11 +37,20 @@ module.exports = {
           AND a.month = d.month
         WHERE d.year >= "${startDate.format('YYYY')}" AND d.country IN (${countrySlice})
         GROUP BY d.program, d.year, d.month
-    `)]).then(function (results) {
+      `),
+      knex.select().from('dispenser_district')
+        .where('year', '>=', startDate.format('YYYY'))
+        .whereIn('country', countrySlice),
+      knex.select('category', 'year', 'month').from('issues')
+        .count('rowid as outages_reported')
+        .whereIn('country', countrySlice)
+        .groupBy('month', 'year', 'category')
+    ]).then(function (results) {
       console.timeEnd('query');
       console.time('perf');
       let dispenserData = results[0];
       let usageData = results[1];
+      let reliabilityData = [results[2], results[3]];
       let carbonData = require('../data/carbon-data.json');
 
       let finalValues = [];
@@ -55,21 +64,29 @@ module.exports = {
       });
 
       // Avg adoption rate
-      let monthlyRates = utils.useRate(usageData, startDate);
+      let monthlyUseRates = utils.useRate(usageData, startDate);
+      let useRate = _.mean(_.map(monthlyUseRates, 'tcr_avg'));
+
+      // This rate is weighted by amount of dispenser installed
+      // let useRate = _(monthlyUseRates).sumBy('raw_total_positives') / _(monthlyUseRates).sumBy('raw_dispensers_measured');
 
       finalValues.push({
         'kpi': 'usage',
-        'value': _(monthlyRates).sumBy('raw_readings') / _(monthlyRates).sumBy('raw_total_dispensers'),
+        'value': useRate,
         'format': 'percent',
         'description': 'avg adoption rate'
       });
 
-      // Total amount of people served
+      // Avg rate of functioning dispensers
+      let monthlyReliabilityRates = utils.reliabilityRate(reliabilityData, moment.utc('2015-07-01', 'YYYY-MM-DD'));
+      // Calculate weighted average
+      let reliabilityRate = _.mean(_.map(monthlyReliabilityRates, 'functional.total_rate'));
+
       finalValues.push({
         'kpi': 'reliability',
-        'value': 0,
+        'value': reliabilityRate,
         'format': 'percent',
-        'description': 'dispensers without outages, monthly average'
+        'description': 'dispensers without outages, monthly average since July 2015'
       });
 
       // Total amount of carbon credits generated
