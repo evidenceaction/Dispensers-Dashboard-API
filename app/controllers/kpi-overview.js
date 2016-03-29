@@ -65,7 +65,7 @@ module.exports = {
 
       // Avg adoption rate
       let monthlyUseRates = utils.useRate(usageData, startDate);
-      let useRate = _.mean(_.map(monthlyUseRates, 'tcr_avg'));
+      let useRate = _.mean(_(monthlyUseRates).map('tcr_avg').compact().value());
 
       // This rate is weighted by amount of dispenser installed
       // let useRate = _(monthlyUseRates).sumBy('raw_total_positives') / _(monthlyUseRates).sumBy('raw_dispensers_measured');
@@ -80,7 +80,7 @@ module.exports = {
       // Avg rate of functioning dispensers
       let monthlyReliabilityRates = utils.reliabilityRate(reliabilityData, moment.utc('2015-07-01', 'YYYY-MM-DD'));
       // Calculate weighted average
-      let reliabilityRate = _.mean(_.map(monthlyReliabilityRates, 'functional.total_rate'));
+      let reliabilityRate = _.mean(_(monthlyReliabilityRates).map('functional.total_rate').compact().value());
 
       finalValues.push({
         'kpi': 'reliability',
