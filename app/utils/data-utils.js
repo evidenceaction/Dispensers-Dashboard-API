@@ -1,5 +1,7 @@
 'use strict';
 var _ = require('lodash');
+var moment = require('moment');
+var steps = require('../utils/timesteps');
 
 // Parse country parameter
 module.exports.parseCountry = function (country) {
@@ -34,6 +36,9 @@ module.exports.parseCountry = function (country) {
 // weighing each program's avg by total dispensers installed.
 
 module.exports.useRate = function (results, startDate) {
+  // Add timestep to each row
+  results = steps.addStep(results);
+
   let finalValues = [];
   _(results)
     .filter(o => o.timestep >= startDate && o.timestep < moment.utc().startOf('month'))
@@ -55,10 +60,8 @@ module.exports.useRate = function (results, startDate) {
       finalValues.push({
         timestep: moment.utc(tsI).format('YYYY-MM-DD'),
         tcr_avg: inUseXPeriod / totalXPeriod * 100,
-        raw: {
-          readings: inUseXPeriod,
-          dis_total: totalXPeriod
-        }
+        raw_readings: inUseXPeriod,
+        raw_total_dispensers: totalXPeriod
       });
     });
   return finalValues;

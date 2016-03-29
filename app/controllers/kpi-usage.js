@@ -4,7 +4,6 @@ var config = require('../config');
 var moment = require('moment');
 var knex = require('../services/db');
 var dataLoader = require('../utils/yaml-md-loader');
-var steps = require('../utils/timesteps');
 var utils = require('../utils/data-utils');
 
 module.exports = {
@@ -31,9 +30,6 @@ module.exports = {
     `).then(function (results) {
       // console.timeEnd('query');
       // console.time('perf');
-
-      // Add timestep to each row
-      results = steps.addStep(results);
 
       // Calculate useRate
       let finalValues = utils.useRate(results, startDate);
