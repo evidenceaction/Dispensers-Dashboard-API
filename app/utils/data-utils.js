@@ -65,12 +65,14 @@ module.exports.useRate = function (results, startDate) {
       // Add monthly rates, including the total readings and dispensers
       // totalXPeriod only includes dispensers from programs that were sampled
       // so may deviate from total dispensers installed
-      finalValues.push({
-        timestep: ts.format('YYYY-MM-DD'),
-        tcr_avg: inUseXPeriod / totalXPeriod * 100,
-        raw_total_positives: inUseXPeriod,
-        raw_dispensers_measured: totalXPeriod
-      });
+      if (totalXPeriod > 0) {
+        finalValues.push({
+          timestep: ts.format('YYYY-MM-DD'),
+          tcr_avg: inUseXPeriod / totalXPeriod * 100,
+          raw_total_positives: inUseXPeriod,
+          raw_dispensers_measured: totalXPeriod
+        });
+      }
     });
   return finalValues;
 };
