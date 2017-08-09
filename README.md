@@ -3,7 +3,7 @@
 API server that provides the [Dispenser Dashboards](https://github.com/evidenceaction/Dispensers-Dashboard) with data and content.
 
 ## Content
-The copy of each sections are stored in its own markdown file in the [app/content](https://github.com/evidenceaction/Dispensers-Dashboard-API/tree/master/app/content) folder. To edit the content, click on the file-name of the section and then on the edit button:
+The copy of each section is stored in its own markdown file in the [app/content](https://github.com/evidenceaction/Dispensers-Dashboard-API/tree/master/app/content) folder. To edit the content, click on the file-name of the section and then on the edit button:
 
 ![image](https://cloud.githubusercontent.com/assets/751330/15194515/3f9d9520-1791-11e6-9e17-f9a1fee2248c.png)
 
