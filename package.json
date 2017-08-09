@@ -7,7 +7,7 @@
     "test": "echo \"No test specified\" && exit 0",
     "start": "node app/index.js",
     "start-dev": "OC_ENV=development ./node_modules/nodemon/bin/nodemon.js app/index.js",
-    "worker": "worker/index.js && mv dsw-dashboard.sqlite app/data",
+    "worker": "node worker/index.js && mv dsw-dashboard.sqlite app/data",
     "lint": "eslint app/ worker/ --ext .js",
     "postinstall": "[ -f app/config/local.js ] || echo 'module.exports = {};' > app/config/local.js; [ -f worker/config/local.js ] || echo 'module.exports = {};' > worker/config/local.js"
   },
