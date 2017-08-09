@@ -1,6 +1,6 @@
 'use strict';
 
-varr async = require('async');
+var async = require('async');
 var fs = require('fs');
 var mysql = require('mysql');
 var sqlite = require('sqlite3');
