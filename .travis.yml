@@ -4,7 +4,7 @@ node_js:
 env:
   global:
   - secure: SKGcJY2VC2saVLzVe26aBDF6xifmH23cgZigabH/7F+gN1x984kkaIVItcj4PiZv/0BviASkvBpEJ5StRJGFyQwUMlDh47fkCm8K6UMSN+zUaow25Xg8whC7cFRC6Gm7p5s8iWz78OhSTLOUGchZ5hFiJQj/Hh1iuFiGO+uQr3rmTQEG4BuQqCYFkKphv3fN8LhzAGPbWe+F5Fa2HCAddclKtgNfqO2G2FSDohXLknYmFtdCE/1PS27Miy7LrNYAjDEHdzV+CoyHPDy4F1hKBNF0tQYzfa3ib8BMN0OEJHEyvGFhbJWdGOHetYXQZj5TZIfWVs+d8gfL3gbz1IR7GOB8STRvOLxkMiUDMpdxiZE9R8exuCUOtJLtPUD3STG/tcu1TZQewouSOWvY1tWHjPOOgDVo8NoKtaqhphUf65XsZ522vfmeuDQEOeidkc1U+6Z1DmdrMqrhlLoBlQs1czoUA3hR0E2PIgeS2VS7bVtII3X2VOgMquILENcezlyOTqcNjNYHxb+cPldDUo8M8yaJMo3G9RuLBjRA0Vzzfa6pw/LKIXeFsjMYPhC/Zl8XwKdZPtSsNzJpnLYReW5hazAjwO/laMNhxsvHIcPi3BXX+6/Zwg+A6QKffKlYuSNMFU7zud7Is4PDOSt7ChhdaFUwBk/bJ0xB8XNJTqlSiyo=
-  - SOURCEDB_URL: 52.58.189.131
+  - SOURCEDB_URL: mlis-evidenceaction.org
   - SOURCEDB_HOST: mysql-db.cnltbg2tkrfl.eu-central-1.rds.amazonaws.com
   - SOURCEDB_USER: devseed
   - SOURCEDB_PASS: seedguest73
