@@ -8,6 +8,8 @@ var mapISO = require('./tools/map-iso');
 var config = require('./config');
 var _ = require('lodash');
 var moment = require('moment');
+var getMonth = require('date-fns/get_month')
+var getYear = require('date-fns/get_year')
 var steps = require('../app/utils/timesteps');
 
 var file = './dsw-dashboard.sqlite';
@@ -88,9 +90,8 @@ async.waterfall([
 
       var is = [];
       for (var ii in issues) {
-        let splitDate = issues[ii].date_created.split('-');
-        let month = splitDate[1];
-        let year = splitDate[2];
+        let month = getMonth(issues[ii].date_created) + 1;
+        let year = getYear(issues[ii].date_created);
         is.push(`(${issues[ii].waterpoint_id}, "${issues[ii].category}", "${issues[ii].date_created}", "${year}", "${month}", "${issues[ii].country}")`);
       }
       finalDb.run('INSERT INTO issues VALUES' + is.join(', '));
