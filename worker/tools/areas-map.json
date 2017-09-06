@@ -249,5 +249,11 @@
   {"name": "Soy", "parent_iso": "KE-44", "type": "sub-county"},
   {"name": "Hamisi", "parent_iso": "KE-45", "type": "sub-county"},
   {"name": "Sabatia", "parent_iso": "KE-45", "type": "sub-county"},
-  {"name": "Vihiga", "parent_iso": "KE-45", "type": "sub-county"}
+  {"name": "Vihiga", "parent_iso": "KE-45", "type": "sub-county"},
+  {"name": "Navakholo", "parent_iso": "KE-11", "type": ""},
+  {"name": "Ugenya", "parent_iso": "KE-38", "type": ""},
+  {"name": "Kimilili", "parent_iso": "KE-03", "type": "municipality"},
+  {"name": "Cherangany", "parent_iso": "KE-42", "type": ""},
+  {"name": "Malava", "parent_iso": "KE-11", "type": "town"},
+  {"name": "Bungoma West", "parent_iso": "KE-03", "type": ""}
 ]
