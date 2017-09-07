@@ -1,5 +1,5 @@
 ---
-titl: Access
+title: Access
 ---
 
 Dispensers for Safe Water is a proven, innovative, low-cost approach to increase household chlorination.   
