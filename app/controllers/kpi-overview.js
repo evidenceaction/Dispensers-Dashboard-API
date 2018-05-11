@@ -51,7 +51,6 @@ module.exports = {
       let dispenserData = results[0];
       let usageData = results[1];
       let reliabilityData = [results[2], results[3]];
-      let carbonData = require('../data/carbon-data.json');
 
       let finalValues = [];
 
@@ -60,22 +59,43 @@ module.exports = {
         'kpi': 'access',
         'value': _(dispenserData).sumBy('people_total'),
         'format': 'absolute',
-        'description': 'people with access'
+        'description': 'People with access'
       });
 
       // Avg adoption rate
-      let monthlyUseRates = utils.useRate(usageData, startDate);
-      let useRate = _.mean(_(monthlyUseRates).map('tcr_avg').compact().value());
-
+	  if (countrySlice == 1) {
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': 42,
+			'format': 'percent',
+			'description': 'Average Chlorine adoption rate'
+		});
+	  } else if (countrySlice == 2) {
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': 58,
+			'format': 'percent',
+			'description': 'Average Chlorine adoption rate'
+		});
+	  } else if (countrySlice == 3) {
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': 76,
+			'format': 'percent',
+			'description': 'Average Chlorine adoption rate'
+		});
+	  } else {
+		finalValues.push({
+			'kpi': 'usage',
+			'value': 53,
+			'format': 'percent',
+			'description': 'Program-wide average Chlorine adoption rate'
+		});
+	  }
       // This rate is weighted by amount of dispenser installed
       // let useRate = _(monthlyUseRates).sumBy('raw_total_positives') / _(monthlyUseRates).sumBy('raw_dispensers_measured');
 
-      finalValues.push({
-        'kpi': 'usage',
-        'value': useRate,
-        'format': 'percent',
-        'description': 'avg adoption rate'
-      });
+      
 
       // Avg rate of functioning dispensers
       let monthlyReliabilityRates = utils.reliabilityRate(reliabilityData, moment.utc('2015-07-01', 'YYYY-MM-DD'));
@@ -86,16 +106,7 @@ module.exports = {
         'kpi': 'reliability',
         'value': reliabilityRate,
         'format': 'percent',
-        'description': 'dispensers without outages, monthly average since July 2015'
-      });
-
-      // Total amount of carbon credits generated
-      // Carbon json is simply filtered by country and totals are summed
-      finalValues.push({
-        'kpi': 'carbon',
-        'value': _(carbonData).filter(o => (countrySlice.indexOf(o.id) > -1)).map('values').flatten().sumBy('credits'),
-        'format': 'absolute',
-        'description': 'carbon credits generated'
+        'description': 'Dispensers without outages'
       });
 
       // console.timeEnd('perf');
