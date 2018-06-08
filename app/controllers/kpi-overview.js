@@ -51,7 +51,6 @@ module.exports = {
       let dispenserData = results[0];
       let usageData = results[1];
       let reliabilityData = [results[2], results[3]];
-      let carbonData = require('../data/carbon-data.json');
 
       let finalValues = [];
 
@@ -60,44 +59,86 @@ module.exports = {
         'kpi': 'access',
         'value': _(dispenserData).sumBy('people_total'),
         'format': 'absolute',
-        'description': 'people with access'
+        'description': 'People with access'
       });
 
-      // Avg adoption rate
-      let monthlyUseRates = utils.useRate(usageData, startDate);
-      let useRate = _.mean(_(monthlyUseRates).map('tcr_avg').compact().value());
 
       // This rate is weighted by amount of dispenser installed
       // let useRate = _(monthlyUseRates).sumBy('raw_total_positives') / _(monthlyUseRates).sumBy('raw_dispensers_measured');
 
-      finalValues.push({
-        'kpi': 'usage',
-        'value': useRate,
-        'format': 'percent',
-        'description': 'avg adoption rate'
-      });
-
+	  if (countrySlice == 1) {
+		  let useRate = 42;
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': useRate,
+			'format': 'percent',
+			'description': 'Average Chlorine adoption rate for the period of March/April 2018'
+		  });
+	  } else if (countrySlice == 2) {	 
+		  let useRate = 58;
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': useRate,
+			'format': 'percent',
+			'description': 'Average Chlorine adoption rate for the period of March/April 2018'
+		  });
+	  } else if (countrySlice == 3) {	 
+		  let useRate = 76;
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': useRate,
+			'format': 'percent',
+			'description': 'Average Chlorine adoption rate for the period of March/April 2018'
+		  });
+	  } else {	 
+		// Avg adoption rate
+		//let monthlyUseRates = utils.useRate(usageData, startDate);
+		//let useRate = _.mean(_(monthlyUseRates).map('tcr_avg').compact().value());
+		let useRate = 53;
+		  finalValues.push({
+			'kpi': 'usage',
+			'value': useRate,
+			'format': 'percent',
+			'description': 'Total monthly average Chlorine adoption rate'
+		  });
+	  }
       // Avg rate of functioning dispensers
-      let monthlyReliabilityRates = utils.reliabilityRate(reliabilityData, moment.utc('2015-07-01', 'YYYY-MM-DD'));
-      // Calculate weighted average
-      let reliabilityRate = _.mean(_(monthlyReliabilityRates).map('functional.total_rate').compact().value());
-
-      finalValues.push({
-        'kpi': 'reliability',
-        'value': reliabilityRate,
-        'format': 'percent',
-        'description': 'dispensers without outages, monthly average since July 2015'
-      });
-
-      // Total amount of carbon credits generated
-      // Carbon json is simply filtered by country and totals are summed
-      finalValues.push({
-        'kpi': 'carbon',
-        'value': _(carbonData).filter(o => (countrySlice.indexOf(o.id) > -1)).map('values').flatten().sumBy('credits'),
-        'format': 'absolute',
-        'description': 'carbon credits generated'
-      });
-
+	  
+	  if (countrySlice == 1) {
+			let reliabilityRate = 100;
+			finalValues.push({
+				'kpi': 'reliability',
+				'value': reliabilityRate,
+				'format': 'percent',
+				'description': 'Dispensers without outages, average for the month of December 2017'
+			});
+	  } else if (countrySlice == 2) {
+			let reliabilityRate = 96;
+			finalValues.push({
+				'kpi': 'reliability',
+				'value': reliabilityRate,
+				'format': 'percent',
+				'description': 'Dispensers without outages, average for the month of December 2017'
+			});
+	  } else if (countrySlice == 3) {
+			let reliabilityRate = 92;
+			finalValues.push({
+				'kpi': 'reliability',
+				'value': reliabilityRate,
+				'format': 'percent',
+				'description': 'Dispensers without outages, average for the month of December 2017'
+			});			
+	  } else {
+			let monthlyReliabilityRates = utils.reliabilityRate(reliabilityData, moment.utc('2015-07-01', 'YYYY-MM-DD'));
+			// Calculate weighted average
+			let reliabilityRate = _.mean(_(monthlyReliabilityRates).map('functional.total_rate').compact().value());
+			finalValues.push({
+				'kpi': 'reliability',
+				'value': reliabilityRate,
+				'format': 'percent',
+				'description': 'Dispensers without outages, monthly average since July 2015'
+			});	  
+      }
       // console.timeEnd('perf');
       return {
         'data': finalValues
