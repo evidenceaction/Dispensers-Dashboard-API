@@ -72,7 +72,7 @@ module.exports = {
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average Chlorine adoption rate for the period of March/April 2018'
+			'description': 'Average chlorine adoption rate for the period of March/April 2018'
 		  });
 	  } else if (countrySlice == 2) {	 
 		  let useRate = 58;
@@ -80,7 +80,7 @@ module.exports = {
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average Chlorine adoption rate for the period of March/April 2018'
+			'description': 'Average chlorine adoption rate for the period of March/April 2018'
 		  });
 	  } else if (countrySlice == 3) {	 
 		  let useRate = 76;
@@ -88,7 +88,7 @@ module.exports = {
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average Chlorine adoption rate for the period of March/April 2018'
+			'description': 'Average chlorine adoption rate for the period of March/April 2018'
 		  });
 	  } else {	 
 		// Avg adoption rate
@@ -99,7 +99,7 @@ module.exports = {
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Total monthly average Chlorine adoption rate'
+			'description': 'Total monthly average chlorine adoption rate'
 		  });
 	  }
       // Avg rate of functioning dispensers
