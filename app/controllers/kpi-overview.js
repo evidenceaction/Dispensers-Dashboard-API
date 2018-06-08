@@ -105,28 +105,28 @@ module.exports = {
       // Avg rate of functioning dispensers
 	  
 	  if (countrySlice == 1) {
-			let reliabilityRate = 100;
+			let reliabilityRate = 79;
 			finalValues.push({
 				'kpi': 'reliability',
 				'value': reliabilityRate,
 				'format': 'percent',
-				'description': 'Dispensers without outages, average for the month of December 2017'
+				'description': 'Dispensers without outages, as at January/February 2018'
 			});
 	  } else if (countrySlice == 2) {
-			let reliabilityRate = 96;
+			let reliabilityRate = 69;
 			finalValues.push({
 				'kpi': 'reliability',
 				'value': reliabilityRate,
 				'format': 'percent',
-				'description': 'Dispensers without outages, average for the month of December 2017'
+				'description': 'Dispensers without outages, as at January/February 2018'
 			});
 	  } else if (countrySlice == 3) {
-			let reliabilityRate = 92;
+			let reliabilityRate = 95;
 			finalValues.push({
 				'kpi': 'reliability',
 				'value': reliabilityRate,
 				'format': 'percent',
-				'description': 'Dispensers without outages, average for the month of December 2017'
+				'description': 'Dispensers without outages, as at January/February 2018'
 			});			
 	  } else {
 			let monthlyReliabilityRates = utils.reliabilityRate(reliabilityData, moment.utc('2015-07-01', 'YYYY-MM-DD'));
