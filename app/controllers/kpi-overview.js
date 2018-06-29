@@ -67,39 +67,39 @@ module.exports = {
       // let useRate = _(monthlyUseRates).sumBy('raw_total_positives') / _(monthlyUseRates).sumBy('raw_dispensers_measured');
 
 	  if (countrySlice == 1) {
-		  let useRate = 42;
+		  let useRate = 45;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine adoption rate for the period of March/April 2018'
+			'description': 'Average chlorine adoption rate for the period of May/June 2018'
 		  });
 	  } else if (countrySlice == 2) {	 
-		  let useRate = 58;
+		  let useRate = 65;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine adoption rate for the period of March/April 2018'
+			'description': 'Average chlorine adoption rate for the period of May/June 2018'
 		  });
 	  } else if (countrySlice == 3) {	 
-		  let useRate = 76;
+		  let useRate = 85;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine adoption rate for the period of March/April 2018'
+			'description': 'Average chlorine adoption rate for the period of May/June 2018'
 		  });
 	  } else {	 
 		// Avg adoption rate
 		//let monthlyUseRates = utils.useRate(usageData, startDate);
 		//let useRate = _.mean(_(monthlyUseRates).map('tcr_avg').compact().value());
-		let useRate = 53;
+		let useRate = 58;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Total monthly average chlorine adoption rate'
+			'description': 'Average chlorine program-wide adoption for the period of May/June 2018'
 		  });
 	  }
       // Avg rate of functioning dispensers
