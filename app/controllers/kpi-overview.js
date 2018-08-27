@@ -67,28 +67,28 @@ module.exports = {
       // let useRate = _(monthlyUseRates).sumBy('raw_total_positives') / _(monthlyUseRates).sumBy('raw_dispensers_measured');
 
 	  if (countrySlice == 1) {
-		  let useRate = 45;
+		  let useRate = 48;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine adoption rate for the period of May/June 2018'
+			'description': 'Average chlorine adoption rate for the period of Jul/Aug 2018'
 		  });
 	  } else if (countrySlice == 2) {	 
-		  let useRate = 65;
+		  let useRate = 64;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine adoption rate for the period of May/June 2018'
+			'description': 'Average chlorine adoption rate for the period of Jul/Aug 2018'
 		  });
 	  } else if (countrySlice == 3) {	 
-		  let useRate = 85;
+		  let useRate = 81;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine adoption rate for the period of May/June 2018'
+			'description': 'Average chlorine adoption rate for the period of Jul/Aug 2018'
 		  });
 	  } else {	 
 		// Avg adoption rate
@@ -99,7 +99,7 @@ module.exports = {
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine program-wide adoption for the period of May/June 2018'
+			'description': 'Average chlorine program-wide adoption for the period of Jul/Aug 2018'
 		  });
 	  }
       // Avg rate of functioning dispensers
