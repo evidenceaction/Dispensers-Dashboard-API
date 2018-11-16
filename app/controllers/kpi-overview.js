@@ -94,12 +94,12 @@ module.exports = {
 		// Avg adoption rate
 		//let monthlyUseRates = utils.useRate(usageData, startDate);
 		//let useRate = _.mean(_(monthlyUseRates).map('tcr_avg').compact().value());
-		let useRate = 58;
+		let useRate = 62;
 		  finalValues.push({
 			'kpi': 'usage',
 			'value': useRate,
 			'format': 'percent',
-			'description': 'Average chlorine program-wide adoption for the period of Jul/Aug 2018'
+			'description': 'Average chlorine program-wide adoption for the period of Sep/Oct 2018'
 		  });
 	  }
       // Avg rate of functioning dispensers
